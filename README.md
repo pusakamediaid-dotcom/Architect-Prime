@@ -35,6 +35,20 @@
 
 ---
 
+## 🖼️ Visual Gallery
+
+Berikut visual realistis dan profesional yang menggambarkan alur kerja Architect-Prime dalam konteks akademik, modular repository, DevOps demo, dan dokumentasi proyek.
+
+| Academic Workflow | Repository Modules |
+|---|---|
+| <img src="assets/academic-workflow-realistic.png" alt="Academic Workflow" width="100%"> | <img src="assets/repository-modules-realistic.png" alt="Repository Modules" width="100%"> |
+
+| DevOps Demo Setup | Academic Documentation |
+|---|---|
+| <img src="assets/devops-demo-realistic.png" alt="DevOps Demo Setup" width="100%"> | <img src="assets/academic-documentation-realistic.png" alt="Academic Documentation" width="100%"> |
+
+---
+
 ## ✨ Features
 
 | Feature | Description |
