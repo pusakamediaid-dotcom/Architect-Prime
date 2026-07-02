@@ -1,93 +1,282 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  # Backend API
-  api:
+  api-gateway:
     build:
-      context: ./api
+      context: ../core-architectures/microservices-clean/api-gateway
       dockerfile: Dockerfile
+    container_name: architect-api-gateway
     ports:
-      - "3000:3000"
+      - "8080:8080"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://postgres:postgres123@postgres:5432/appdb
-      - REDIS_URL=redis://redis:6379
+      - USER_SERVICE_URL=http://user-service:3001
+      - ORDER_SERVICE_URL=http://order-service:3002
+      - PAYMENT_SERVICE_URL=http://payment-service:3003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
+    depends_on:
+      - user-service
+      - order-service
+      - payment-service
+      - notification-service
+    networks:
+      - architect-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  user-service:
+    build:
+      context: ../core-architectures/microservices-clean/services/user-service
+      dockerfile: Dockerfile
+    container_name: architect-user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongo:27017/users
+      - REDIS_HOST=redis
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - architect-network
+    restart: unless-stopped
+    volumes:
+      - user-logs:/app/logs
+
+  order-service:
+    build:
+      context: ../core-architectures/microservices-clean/services/order-service
+      dockerfile: Dockerfile
+    container_name: architect-order-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=orders
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_HOST=redis
     depends_on:
       - postgres
       - redis
     networks:
-      - app-network
+      - architect-network
     restart: unless-stopped
 
-  # Frontend
-  frontend:
+  payment-service:
     build:
-      context: ./frontend
+      context: ../core-architectures/microservices-clean/services/payment-service
       dockerfile: Dockerfile
+    container_name: architect-payment-service
     ports:
-      - "80:80"
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=payments
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
+      - MIDTRANS_CLIENT_KEY=${MIDTRANS_CLIENT_KEY}
     depends_on:
-      - api
+      - postgres
     networks:
-      - app-network
+      - architect-network
     restart: unless-stopped
 
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
+  notification-service:
+    build:
+      context: ../core-architectures/microservices-clean/services/notification-service
+      dockerfile: Dockerfile
+    container_name: architect-notification-service
+    ports:
+      - "3004:3004"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres123
-      - POSTGRES_DB=appdb
+      - NODE_ENV=production
+      - PORT=3004
+      - REDIS_HOST=redis
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    depends_on:
+      - redis
+    networks:
+      - architect-network
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    container_name: architect-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - architect-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: architect-postgres
     ports:
       - "5432:5432"
+    environment:
+      - POSTGRES_DB=architect_prime
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
-      - app-network
+      - architect-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis Cache
   redis:
     image: redis:7-alpine
+    container_name: architect-redis
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
     networks:
-      - app-network
+      - architect-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    container_name: architect-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
-      - "8080:80"
+      - "9200:9200"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - api
-      - frontend
+      - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
-      - app-network
+      - architect-network
     restart: unless-stopped
 
-  # Prometheus Metrics
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.0
+    container_name: architect-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    depends_on:
+      - elasticsearch
+    networks:
+      - architect-network
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: architect-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - architect-network
+    restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:latest
+    container_name: architect-prometheus
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
     networks:
-      - app-network
+      - architect-network
     restart: unless-stopped
 
-networks:
-  app-network:
-    driver: bridge
+  grafana:
+    image: grafana/grafana:latest
+    container_name: architect-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - architect-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: architect-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - api-gateway
+    networks:
+      - architect-network
+    restart: unless-stopped
 
 volumes:
+  mongo-data:
   postgres-data:
   redis-data:
+  elasticsearch-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana-data:
+  user-logs:
+  nginx-logs:
+
+networks:
+  architect-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

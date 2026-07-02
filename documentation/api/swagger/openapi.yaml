@@ -1,0 +1,775 @@
+openapi: 3.0.3
+info:
+  title: Architect Prime API
+  description: |
+    RESTful API documentation for Architect Prime platform.
+    This API provides endpoints for managing users, orders, payments, and notifications.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@architect-prime.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.architect-prime.com/v1
+    description: Production server
+  - url: https://staging-api.architect-prime.com/v1
+    description: Staging server
+  - url: http://localhost:8080/api/v1
+    description: Local development
+
+tags:
+  - name: Users
+    description: User management operations
+  - name: Orders
+    description: Order management operations
+  - name: Payments
+    description: Payment processing operations
+  - name: Notifications
+    description: Notification management operations
+  - name: Auth
+    description: Authentication operations
+
+paths:
+  /users:
+    get:
+      tags:
+        - Users
+      summary: List all users
+      description: Retrieve a paginated list of all users
+      operationId: listUsers
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: role
+          in: query
+          description: Filter by role
+          schema:
+            type: string
+            enum: [admin, moderator, user]
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Register a new user in the system
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags:
+        - Users
+      summary: Update user
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: User login
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: User registration
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: List orders
+      operationId: listOrders
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, processing, shipped, delivered, cancelled]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags:
+        - Orders
+      summary: Create order
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+      security:
+        - bearerAuth: []
+
+  /orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Get order by ID
+      operationId: getOrderById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /payments/initiate:
+    post:
+      tags:
+        - Payments
+      summary: Initiate payment
+      operationId: initiatePayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiatePaymentRequest'
+      responses:
+        '200':
+          description: Payment initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+      security:
+        - bearerAuth: []
+
+  /payments/confirm:
+    post:
+      tags:
+        - Payments
+      summary: Confirm payment
+      operationId: confirmPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmPaymentRequest'
+      responses:
+        '200':
+          description: Payment confirmed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+      security:
+        - bearerAuth: []
+
+  /notifications/send:
+    post:
+      tags:
+        - Notifications
+      summary: Send notification
+      operationId: sendNotification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendNotificationRequest'
+      responses:
+        '200':
+          description: Notification sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [admin, moderator, user]
+        status:
+          type: string
+          enum: [active, inactive, suspended, banned]
+        emailVerified:
+          type: boolean
+        avatar:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          format: password
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [user, moderator, admin]
+          default: user
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/User'
+
+    UserListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            totalPages:
+              type: integer
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        status:
+          type: string
+        totalAmount:
+          type: number
+        currency:
+          type: string
+        paymentMethod:
+          type: string
+        paymentStatus:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: integer
+        discount:
+          type: number
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - customerId
+        - items
+      properties:
+        customerId:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        shippingAddress:
+          $ref: '#/components/schemas/ShippingAddress'
+        paymentMethod:
+          type: string
+
+    ShippingAddress:
+      type: object
+      properties:
+        recipientName:
+          type: string
+        phone:
+          type: string
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+          default: Indonesia
+
+    OrderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Order'
+
+    OrderListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+
+    InitiatePaymentRequest:
+      type: object
+      required:
+        - orderId
+        - amount
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        method:
+          type: string
+          enum: [bank_transfer, credit_card, e_wallet]
+
+    ConfirmPaymentRequest:
+      type: object
+      required:
+        - paymentId
+        - providerReference
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+        providerReference:
+          type: string
+
+    PaymentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        status:
+          type: string
+        provider:
+          type: string
+        providerReference:
+          type: string
+
+    SendNotificationRequest:
+      type: object
+      required:
+        - userId
+        - channel
+        - template
+      properties:
+        userId:
+          type: string
+          format: uuid
+        channel:
+          type: string
+          enum: [email, sms, push, whatsapp]
+        template:
+          type: string
+        data:
+          type: object
+
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        sentAt:
+          type: string
+          format: date-time
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Authentication required
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Access denied
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              error:
+                type: string
+                example: Resource not found
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    field:
+                      type: string
+                    message:
+                      type: string

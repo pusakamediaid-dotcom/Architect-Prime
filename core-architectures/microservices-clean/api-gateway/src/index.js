@@ -1,98 +1,105 @@
-/**
- * API Gateway - Main Entry Point
- * Handles request routing, authentication, rate limiting
- */
+'use strict';
 
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const axios = require('axios');
 
-const app = express();
-const PORT = process.env.PORT || 8080;
+const config = require('../../shared/config');
+const { EVENTS } = require('../../shared/constants/events');
 
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(morgan('combined'));
-app.use(express.json());
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests, please try again later.'
-});
-app.use('/api', limiter);
-
-// Service URLs
-const SERVICES = {
-  user: process.env.USER_SERVICE_URL || 'http://localhost:3001',
-  order: process.env.ORDER_SERVICE_URL || 'http://localhost:3002',
-  payment: process.env.PAYMENT_SERVICE_URL || 'http://localhost:3003',
-  notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3004'
-};
-
-// Authentication middleware
-const authMiddleware = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ error: 'No token provided' });
+class APIGateway {
+  constructor() {
+    this.app = express();
+    this.setupMiddleware();
+    this.setupRoutes();
+    this.setupErrorHandling();
   }
-  
-  try {
-    // Verify token with user service
-    const response = await axios.get(`${SERVICES.user}/api/auth/verify`, {
-      headers: { Authorization: `Bearer ${token}` }
+
+  setupMiddleware() {
+    this.app.use(helmet());
+    this.app.use(cors(config.cors));
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(morgan('combined'));
+
+    const limiter = rateLimit(config.rateLimit);
+    this.app.use('/api/', limiter);
+  }
+
+  setupRoutes() {
+    this.app.get('/health', (req, res) => {
+      res.json({ status: 'healthy', timestamp: new Date().toISOString() });
     });
-    req.user = response.data.user;
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+
+    this.app.get('/api/users', this.proxyRequest(config.services.userService.url, '/users'));
+    this.app.post('/api/users', this.proxyRequest(config.services.userService.url, '/users'));
+    this.app.get('/api/users/:id', this.proxyRequest(config.services.userService.url, '/users/:id'));
+    this.app.put('/api/users/:id', this.proxyRequest(config.services.userService.url, '/users/:id'));
+    this.app.delete('/api/users/:id', this.proxyRequest(config.services.userService.url, '/users/:id'));
+
+    this.app.get('/api/orders', this.proxyRequest(config.services.orderService.url, '/orders'));
+    this.app.post('/api/orders', this.proxyRequest(config.services.orderService.url, '/orders'));
+    this.app.get('/api/orders/:id', this.proxyRequest(config.services.orderService.url, '/orders/:id'));
+    this.app.put('/api/orders/:id/status', this.proxyRequest(config.services.orderService.url, '/orders/:id/status'));
+
+    this.app.post('/api/payments/initiate', this.proxyRequest(config.services.paymentService.url, '/payments/initiate'));
+    this.app.post('/api/payments/confirm', this.proxyRequest(config.services.paymentService.url, '/payments/confirm'));
+    this.app.get('/api/payments/:id', this.proxyRequest(config.services.paymentService.url, '/payments/:id'));
+
+    this.app.post('/api/notifications/send', this.proxyRequest(config.services.notificationService.url, '/notifications/send'));
+    this.app.get('/api/notifications/:userId', this.proxyRequest(config.services.notificationService.url, '/notifications/:userId'));
   }
-};
 
-// Routes
-app.use('/api/users', authMiddleware, createProxy('/api/users', SERVICES.user));
-app.use('/api/orders', authMiddleware, createProxy('/api/orders', SERVICES.order));
-app.use('/api/payments', authMiddleware, createProxy('/api/payments', SERVICES.payment));
-app.use('/api/notifications', authMiddleware, createProxy('/api/notifications', SERVICES.notification));
+  proxyRequest(targetService, path) {
+    return async (req, res, next) => {
+      try {
+        const url = `${targetService}${path.replace(':id', req.params.id || '')}`;
+        const params = { ...req.query };
+        
+        const response = await axios({
+          method: req.method,
+          url,
+          data: req.body,
+          params,
+          headers: {
+            'X-Request-ID': req.headers['x-request-id'] || require('uuid').v4(),
+            'X-Forwarded-For': req.ip,
+            'X-User-ID': req.headers['x-user-id']
+          },
+          timeout: config.services[Object.keys(config.services).find(
+            key => config.services[key].url === targetService
+          )]?.timeout || 5000
+        });
 
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
-
-// Proxy helper
-function createProxy(path, target) {
-  return async (req, res) => {
-    try {
-      const url = `${target}${req.originalUrl}`;
-      const response = await axios({
-        method: req.method,
-        url,
-        headers: {
-          ...req.headers,
-          host: undefined
-        },
-        data: req.body
-      });
-      res.status(response.status).json(response.data);
-    } catch (error) {
-      if (error.response) {
-        res.status(error.response.status).json(error.response.data);
-      } else {
-        res.status(500).json({ error: 'Service unavailable' });
+        res.status(response.status).json(response.data);
+      } catch (error) {
+        if (error.response) {
+          return res.status(error.response.status).json(error.response.data);
+        }
+        next(error);
       }
-    }
-  };
+    };
+  }
+
+  setupErrorHandling() {
+    this.app.use((err, req, res, next) => {
+      console.error('Gateway Error:', err);
+      res.status(500).json({
+        success: false,
+        message: 'Internal Gateway Error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+      });
+    });
+  }
+
+  start(port = process.env.PORT || 8080) {
+    this.app.listen(port, () => {
+      console.log(`API Gateway running on port ${port}`);
+    });
+  }
 }
 
-app.listen(PORT, () => {
-  console.log(`🚀 API Gateway running on port ${PORT}`);
-});
-
-module.exports = app;
+module.exports = APIGateway;

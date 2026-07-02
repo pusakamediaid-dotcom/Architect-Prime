@@ -1,97 +1,337 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt,a4paper,oneside]{book}
+
+% Packages
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage[indonesian]{babel}
 \usepackage{graphicx}
+\usepackage{amsmath, amssymb}
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage{setspace}
-\usepackage{amsmath}
 \usepackage{cite}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{pdfpages}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{appendix}
 
-\geometry{margin=1in}
-\doublespacing
+\geometry{
+    left=3cm,
+    right=2.5cm,
+    top=3cm,
+    bottom=2.5cm
+}
 
+% Title format
+\titleformat{\chapter}[display]
+    {\normalfont\LARGE\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\LARGE}
+\titlespacing*{\chapter}{0pt}{20pt}{40pt}
+
+% Spacing
+\setstretch{1.5}
+\onehalfspacing
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\fancyhead[L]{\nouppercase\leftmark}
+\fancyfoot[C]{}
+\addtolength{\headheight}{15pt}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% Command definitions
+\newcommand{\thesisTitle}[1]{\title{\textbf{#1}}}
+\newcommand{\chapterimage}[1]{\includegraphics[width=1\textwidth]{#1}}
+\newcommand{\source}[1]{\caption*{\textbf{Source:} #1}}
+
+% Title page
 \begin{document}
-
-% Cover Page
+\pagenumbering{roman}
 \begin{titlepage}
-\centering
-\vspace*{2cm}
-{\LARGE\bfseries Judul Skripsi/Tesis}\par
-\vspace{1cm}
-{\large Nama Lengkap}\par
-\vspace{0.5cm}
-{NIM: 123456789}\par
-\vspace{2cm}
-\includegraphics[width=0.3\textwidth]{logo.png}\par
-\vspace{2cm}
-{\large\bfseries UNIVERSITAS}\par
-{\large FAKULTAS}\par
-{\large Program Studi}\par
-\vspace{2cm}
-{\large Tahun 2024}
+    \centering
+    \vspace*{2cm}
+    
+    \includegraphics[width=0.3\textwidth]{images/logo-university.png}
+    \vspace{1cm}
+    
+    {\Large\bfseries UNIVERSITAS INDONESIA\par}
+    \vspace{0.5cm}
+    {\large\bfseries FAKULTAS TEKNIK\par}
+    \vspace{0.5cm}
+    {\large PROGRAM STUDI TEKNIK INFORMATIKA\par}
+    
+    \vspace{2cm}
+    
+    {\Huge\bfseries\scshape Judul Skripsi\par}
+    \vspace{0.5cm}
+    {\LARGE\bfseries Yang Sangat Panjang dan Detail\par}
+    
+    \vspace{3cm}
+    
+    \begin{tabular}{ll}
+        Nama & : John Doe \\
+        NPM & : 1906123456 \\
+        Departemen & : Teknik Informatika \\
+        \hline
+        Tanggal & : \today \\
+    \end{tabular}
+    
+    \vfill
+    
+    {\large Jakarta\par}
+    {\large\the\year\par}
+    
 \end{titlepage}
 
-% Abstract
-\newpage
+% Approval page
+\chapter*{LEMBAR PENGESAHAN}
+\addcontentsline{toc}{chapter}{Lembar Pengesahan}
+\vspace{2cm}
+
 \begin{center}
-\textbf{ABSTRAK}
+{\Large\bfseries SKRIPSI\par}
+\vspace{1cm}
+{\Large\bfseries Judul Skripsi\par}
+\vspace{0.5cm}
+{\Large (Full Width Title Here)\par}
 \end{center}
-\vspace{1em}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+\vspace{2cm}
 
-\vspace{2em}
-\textbf{Kata Kunci:} kata kunci 1, kata kunci 2, kata kunci 3
+Diprogramkan untuk memenuhi sebagian persyaratan\\
+memperoleh gelar Sarjana Komputer
 
-% Table of Contents
-\newpage
+\vspace{2cm}
+
+\begin{tabular}{p{3cm}p{8cm}}
+    & \\
+    Dibuat oleh & : John Doe \\
+    NPM & : 1906123456 \\
+    & \\
+    Telah diterima dan disetujui & \\
+    & \\
+    & \\
+    & \\
+    \hline
+    \multicolumn{2}{c}{Pembimbing} \\
+    & \\
+    \cline{2-2}
+    & \\
+    & \\
+\end{tabular}
+
+% Abstract
+\chapter*{ABSTRAK}
+\addcontentsline{toc}{chapter}{Abstrak}
+\vspace{1cm}
+
+{\Large\bfseries ABSTRAK\par}
+\vspace{0.5cm}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+
+\vspace{0.5cm}
+\textbf{Kata kunci:} keyword1, keyword2, keyword3
+
+% Table of contents
 \tableofcontents
+\addcontentsline{toc}{chapter}{Daftar Isi}
 
-% Main Content
-\newpage
-\section{PENDAHULUAN}
-\subsection{Latar Belakang}
-Lorem ipsum dolor sit amet...
+% List of tables
+\listoftables
+\addcontentsline{toc}{chapter}{Daftar Tabel}
 
-\subsection{Rumusan Masalah}
+% List of figures
+\listoffigures
+\addcontentsline{toc}{chapter}{Daftar Gambar}
+
+% Introduction
+\chapter{PENDAHULUAN}
+\pagenumbering{arabic}
+\thispagestyle{fancy}
+
+\section{Latar Belakang}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+
+\section{Rumusan Masalah}
+Berdasarkan latar belakang yang telah diuraikan, maka rumusan masalah dari penelitian ini adalah:
 \begin{enumerate}
-    \item Bagaimana pengaruh X terhadap Y?
-    \item Faktor apa saja yang...
+    \item Bagaimana desain sistem yang optimal untuk masalah ini?
+    \item Bagaimana implementasi sistem dapat dilakukan dengan efektif?
+    \item Bagaimana evaluasi performansi sistem yang telah dibangun?
 \end{enumerate}
 
-\subsection{Tujuan Penelitian}
-Tujuan penelitian ini adalah untuk menganalisis...
+\section{Tujuan Penelitian}
+Tujuan dari penelitian ini adalah:
+\begin{enumerate}
+    \item Merancang sistem yang dapat menyelesaikan masalah secara optimal.
+    \item Mengimplementasikan sistem sesuai dengan desain yang telah dibuat.
+    \item Mengevaluasi performansi sistem yang telah diimplementasikan.
+\end{enumerate}
 
-\section{TINJAUAN PUSTAKA}
-Lorem ipsum dolor sit amet...
+\section{Batasan Masalah}
+Batasan masalah dalam penelitian ini adalah:
+\begin{itemize}
+    \item Sistem dibatasi pada platform web saja.
+    \item Data yang digunakan adalah data simulasi.
+    \item Implementasi tidak mencakup aspek keamanan secara mendalam.
+\end{itemize}
 
-\section{METODE PENELITIAN}
-\subsection{Desain Penelitian}
-Penelitian ini menggunakan metode kuantitatif...
+\section{Sistematika Penulisan}
+Sistematika penulisan skripsi ini adalah sebagai berikut:
+\begin{itemize}
+    \item Bab 1 Pendahuluan
+    \item Bab 2 Tinjauan Pustaka dan Dasar Teori
+    \item Bab 3 Metodologi Penelitian
+    \item Bab 4 Implementasi dan Pengujian
+    \item Bab 5 Penutup
+\end{itemize}
 
-\subsection{Populasi dan Sampel}
-Populasi penelitian adalah...
+% Literature Review
+\chapter{TINJAUAN PUSTAKA DAN DASAR TEORI}
 
-\section{HASIL DAN PEMBAHASAN}
-\begin{table}[h]
-\centering
-\caption{Data Penelitian}
-\begin{tabular}{|c|c|c|}
-\hline
-Kolom 1 & Kolom 2 & Kolom 3 \\
-\hline
-Data 1 & Data 2 & Data 3 \\
-\hline
-\end{tabular}
+\section{Tinjauan Pustaka}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+\section{Dasar Teori}
+
+\subsection{Konsep Dasar}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+\subsection{Metode yang Digunakan}
+\lipsum[2]
+
+\begin{equation}
+    f(x) = \sum_{i=0}^{n} a_i x^i
+    \label{eq:polynomial}
+\end{equation}
+
+\section{Studi Terkait}
+\lipsum[3]
+
+% Methodology
+\chapter{METODOLOGI PENELITIAN}
+
+\section{Tahapan Penelitian}
+Penelitian ini dilakukan dengan tahapan sebagai berikut:
+
+\begin{enumerate}
+    \item Studi literatur dan pengumpulan data
+    \item Analisis kebutuhan sistem
+    \item Perancangan sistem
+    \item Implementasi sistem
+    \item Pengujian dan evaluasi
+\end{enumerate}
+
+\section{Desain Sistem}
+Desain sistem terdiri dari:
+
+\begin{itemize}
+    \item Arsitektur sistem
+    \item Diagram alir data
+    \item Desain database
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/architecture.png}
+    \caption{Arsitektur Sistem}
+    \label{fig:architecture}
+\end{figure}
+
+% Implementation
+\chapter{IMPLEMENTASI DAN PENGUJIAN}
+
+\section{Lingkungan Pengembangan}
+\lipsum[4]
+
+\section{Hasil Implementasi}
+\lipsum[5]
+
+\section{Pengujian Sistem}
+\lipsum[6]
+
+\begin{table}[htbp]
+    \centering
+    \caption{Hasil Pengujian}
+    \begin{tabular}{cccc}
+        \toprule
+        \textbf{No} & \textbf{Test Case} & \textbf{Hasil} & \textbf{Status} \\
+        \midrule
+        1 & Login Test & Success & Pass \\
+        2 & Register Test & Success & Pass \\
+        3 & Data Input Test & Success & Pass \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:testing}
 \end{table}
 
-\section{KESIMPULAN}
-Kesimpulan dari penelitian ini adalah...
+% Conclusion
+\chapter{PENUTUP}
+
+\section{Kesimpulan}
+Berdasarkan penelitian yang telah dilakukan, dapat disimpulkan bahwa:
+
+\begin{enumerate}
+    \item Sistem yang dirancang dapat menyelesaikan masalah dengan efektif.
+    \item Implementasi sistem berhasil dilakukan sesuai dengan desain.
+    \item Performansi sistem dapat mencapai target yang diharapkan.
+\end{enumerate}
+
+\section{Saran}
+Saran untuk penelitian selanjutnya adalah:
+
+\begin{enumerate}
+    \item Pengembangan sistem dapat diperluas ke platform mobile.
+    \item Penambahan fitur keamanan yang lebih komprehensif.
+    \item Integrasi dengan sistem lain yang relevan.
+\end{enumerate}
 
 % Bibliography
-\newpage
-\bibliographystyle{plain}
-\bibliography{references}
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Daftar Pustaka}
+
+bibitem{ref1}
+Author Name, ``Judul Artikel,'' \emph{Journal Name}, vol. 1, no. 1, pp. 1-10, 2024.
+
+bibitem{ref2}
+Author Name, \emph{Buku Referensi}. Jakarta: Publisher Name, 2023.
+
+bibitem{ref3}
+Author Name, ``Conference Paper,'' in \emph{Proceedings of Conference}, 2023, pp. 1-5.
+
+bibitem{ref4}
+Online Source, [Online]. Available: https://example.com. [Accessed: 1 Jan. 2024].
+
+\end{thebibliography}
+
+% Appendices
+\begin_appendix
+\chapter{Lampiran Kode Program}
+\label{app:code}
+\begin{verbatim}
+def hello_world():
+    print("Hello, World!")
+
+if __name__ == "__main__":
+    hello_world()
+\end{verbatim}
+
+\chapter{Lampiran Data}
+\lipsum[10]
+
+\end_appendix
 
 \end{document}
