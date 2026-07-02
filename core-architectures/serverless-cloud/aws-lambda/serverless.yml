@@ -1,0 +1,90 @@
+service: architect-prime-serverless
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-southeast-1
+  stage: \${opt:stage, 'dev'}
+  environment:
+    DYNAMODB_TABLE: \${self:service}-\${self:provider.stage}
+    JWT_SECRET: \${env:JWT_SECRET}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:\${aws:region}:\*:table/\${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  helloWorld:
+    handler: functions/hello.handler
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
+
+  createUser:
+    handler: functions/user/create.handler
+    events:
+      - http:
+          path: /users
+          method: post
+          cors: true
+
+  getUser:
+    handler: functions/user/get.handler
+    events:
+      - http:
+          path: /users/{id}
+          method: get
+          cors: true
+
+  processImage:
+    handler: functions/image/process.handler
+    events:
+      - s3:
+          bucket: \${self:service}-\${self:provider.stage}-uploads
+          event: s3:ObjectCreated:*
+
+  sendEmail:
+    handler: functions/email/send.handler
+    events:
+      - sqs:
+          arn: \${cf:\${self:service}-\${self:provider.stage}-queue.QueueArn}
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: \${self:provider.environment.DYNAMODB_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+
+    UploadBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: \${self:service}-\${self:provider.stage}-uploads
+
+    EmailQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: \${self:service}-\${self:provider.stage}-queue
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
