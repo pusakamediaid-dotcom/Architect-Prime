@@ -1,6 +1,7 @@
 'use strict';
 
 const AWS = require('aws-sdk');
+const bcrypt = require('bcryptjs');
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 const lambda = new AWS.Lambda();
@@ -59,7 +60,7 @@ class LambdaHandler {
     await dynamodb.put({
       TableName: this.tableName,
       Item: user,
-      ConditionExpression: 'attribute_not_exists(email)'
+      ConditionExpression: 'attribute_not_exists(id)'
     }).promise();
 
     await this.publishEvent('user.created', user);
@@ -153,9 +154,7 @@ class LambdaHandler {
 
   async hashPassword(password) {
     const crypto = require('crypto');
-    return crypto.createHmac('sha256', process.env.HASH_SECRET || 'secret')
-      .update(password)
-      .digest('hex');
+    return bcrypt.hash(password, 12);
   }
 
   async publishEvent(eventType, data) {

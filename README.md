@@ -1,10 +1,9 @@
 # 🏗️ Architect-Prime
 
-> **Premium Commercial Boilerplate Ecosystem** for Engineering, IT, and Data Science Students
+> Multi-architecture academic and professional boilerplate ecosystem for Engineering, IT, and Data Science projects.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/pusakamediaid-dotcom/Architect-Prime/ci.yml)](https://github.com/pusakamediaid-dotcom/Architect-Prime/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/pusakamediaid-dotcom/Architect-Prime/ci.yml?label=CI)](https://github.com/pusakamediaid-dotcom/Architect-Prime/actions)
 
 <p align="center">
   <img src="assets/academic-workflow-realistic.png" alt="Architect-Prime academic software development workflow" width="100%">
@@ -12,44 +11,38 @@
 
 ---
 
-## 📋 Table of Contents
+## Overview
 
-- [Overview](#overview)
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [Directory Structure](#directory-structure)
-- [Modules](#modules)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
+Architect-Prime is a structured repository for learning, building, and explaining modern software architecture. It keeps the original big vision: multiple architectures, multiple languages, DevOps automation, documentation utilities, academic templates, and cloud/serverless references.
+
+The repository is now documented honestly: the **Node.js TypeScript API** is the primary runnable demo, while several advanced stacks are maintained as scaffolds or previews until their full runtime profiles are completed.
 
 ---
 
-## 🎯 Overview
+## Module Status
 
-**Architect-Prime** adalah ekosistem boilerplate komersial premium yang dirancang khusus untuk mahasiswa Teknik, IT, dan Sains Data. Proyek ini bertujuan untuk membantu menyelesaikan tugas kuliah, praktikum, dan skripsi secara instan dengan menyediakan blueprint arsitektur profesional dan multi-language modules yang siap pakai.
-
-### Mengapa Architect-Prime?
-
-- ✅ **Ultra-Modular** - Setiap komponen berfungsi seperti LEGO yang mandiri
-- ✅ **Multi-Language** - Python, Node.js, Go, PHP dalam satu ekosistem
-- ✅ **Production-Ready** - Siap untuk deployment komersial
-- ✅ **Academic-Focused** - Dirancang untuk kebutuhan akademik
-- ✅ **CI/CD Integrated** - Workflow otomatis untuk development
+| Area | Module | Status | Validation Command |
+|---|---|---|---|
+| Primary API | `multi-language-modules/nodejs-typescript` | Ready baseline | `npm ci && npm run build && npm test` |
+| Data Science | `multi-language-modules/python-data-science` | Preview | `python -m compileall -q ...` |
+| Go Service | `multi-language-modules/go-high-performance` | Preview | `go test ./...` |
+| PHP Modern | `multi-language-modules/php-modern` | Laravel-style scaffold | `composer validate` |
+| Microservices | `core-architectures/microservices-clean` | Advanced scaffold | Compose profile pending full Dockerfiles |
+| Serverless AWS | `core-architectures/serverless-cloud/aws-lambda` | Scaffold | `serverless package` |
+| Firebase | `core-architectures/serverless-cloud/firebase-functions` | Scaffold | `npm run build` inside `functions` |
+| DevOps | `devops-and-automation/docker-compose/docker-compose.demo.yml` | Ready config | `docker compose -f ... config` |
 
 ---
 
+## Features
 
-## ✨ Features
-
-| Feature | Description |
-|---------|-------------|
-| 🔧 **3 Core Architectures** | Monolithic MVC, Microservices DDD, Serverless Cloud |
-| 🌐 **4 Language Modules** | Python DS, Node.js TS, Go High-Performance, PHP Modern |
-| 🐳 **DevOps Tools** | Docker Compose, Kubernetes, Terraform, Ansible |
-| 📊 **Academic Utilities** | LaTeX Thesis, Markdown Generator, Data Visualization |
-| 📚 **API Documentation** | OpenAPI/Swagger, Postman Collections, ERD |
-| ⚡ **CI/CD Workflows** | GitHub Actions untuk linting, testing, deployment |
+- Modular architecture references: MVC, microservices, serverless, language modules.
+- Runnable Node.js TypeScript API with Express, validation, JWT, bcrypt, Swagger UI, tests, and Prisma schema scaffold.
+- Python academic utilities and data-science pipeline templates.
+- Go, PHP, AWS Lambda, and Firebase scaffolds for expansion.
+- DevOps profile with Docker Compose demo and Kubernetes manifest.
+- CI pipeline for Python compile checks, Node build/test/audit, and Docker Compose config validation.
+- Product-grade documentation files: roadmap, support, security, changelog, and setup script.
 
 <p align="center">
   <img src="assets/repository-modules-realistic.png" alt="Architect-Prime modular repository organization" width="100%">
@@ -57,52 +50,39 @@
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Clone Repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/pusakamediaid-dotcom/Architect-Prime.git
 cd Architect-Prime
 ```
 
-### Start with Docker Compose
+### 2. Setup
 
 ```bash
-# Start all services
-docker-compose -f devops-and-automation/docker-compose/docker-compose.yml up -d
-
-# Check status
-docker-compose ps
+cp .env.example .env
+bash setup.sh
 ```
 
-### Run Individual Module
+### 3. Run Primary Node.js API
 
-#### Python Data Science
-```bash
-cd multi-language-modules/python-data-science
-pip install -r requirements.txt
-python src/models/fastapi_app.py
-```
-
-#### Node.js TypeScript
 ```bash
 cd multi-language-modules/nodejs-typescript
-npm install
 npm run dev
 ```
 
-#### Go High-Performance
-```bash
-cd multi-language-modules/go-high-performance
-go run cmd/server/main.go
-```
+Open:
 
-#### PHP Modern (Laravel)
+- Health check: <http://localhost:3000/health>
+- Swagger UI: <http://localhost:3000/docs>
+
+### 4. Run Validation
+
 ```bash
-cd multi-language-modules/php-modern
-composer install
-php artisan serve
+make build
+make test
 ```
 
 <p align="center">
@@ -111,468 +91,114 @@ php artisan serve
 
 ---
 
-## 📂 Directory Structure
+## Architecture
 
-```
+```text
 Architect-Prime/
-├── .github/
-│   └── workflows/          # CI/CD pipelines
-│       ├── ci.yml          # Continuous Integration
-│       ├── release.yml     # Release automation
-│       └── security.yml    # Security scanning
-│
-├── core-architectures/     # Blueprint arsitektur
-│   ├── monolithic-mvc/     # Traditional web architecture
-│   │   ├── app/
-│   │   │   ├── controllers/
-│   │   │   ├── models/
-│   │   │   ├── middleware/
-│   │   │   ├── validators/
-│   │   │   ├── transformers/
-│   │   │   └── exceptions/
-│   │   ├── config/
-│   │   ├── database/
-│   │   │   ├── migrations/
-│   │   │   └── seeders/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── bootstrap/
-│   │   ├── storage/
-│   │   ├── resources/
-│   │   └── public/
-│   │
-│   ├── microservices-clean/  # DDD Microservices
-│   │   ├── api-gateway/
-│   │   │   └── src/
-│   │   ├── services/
-│   │   │   ├── user-service/
-│   │   │   │   └── src/
-│   │   │   │       ├── domain/
-│   │   │   │       │   ├── entities/
-│   │   │   │       │   ├── value-objects/
-│   │   │   │       │   └── events/
-│   │   │   │       ├── application/
-│   │   │   │       │   ├── use-cases/
-│   │   │   │       │   ├── services/
-│   │   │   │       │   └── dtos/
-│   │   │   │       ├── infrastructure/
-│   │   │   │       │   ├── repositories/
-│   │   │   │       │   ├── messaging/
-│   │   │   │       │   └── cache/
-│   │   │   │       └── presentation/
-│   │   │   │           ├── controllers/
-│   │   │   │           ├── validators/
-│   │   │   │           └── middleware/
-│   │   │   ├── order-service/
-│   │   │   ├── payment-service/
-│   │   │   └── notification-service/
-│   │   ├── shared/
-│   │   │   ├── config/
-│   │   │   ├── constants/
-│   │   │   ├── exceptions/
-│   │   │   ├── middlewares/
-│   │   │   └── utils/
-│   │   └── infrastructure/
-│   │       └── k8s/
-│   │
-│   └── serverless-cloud/   # Serverless architecture
-│       ├── aws-lambda/
-│       │   ├── functions/
-│       │   │   ├── user/
-│       │   │   ├── order/
-│       │   │   ├── payment/
-│       │   │   └── notification/
-│       │   ├── layers/
-│       │   └── events/
-│       ├── firebase-functions/
-│       │   └── functions/
-│       │       └── src/
-│       ├── vercel/
-│       │   └── api/
-│       ├── azure-functions/
-│       └── gcp-functions/
-│
-├── multi-language-modules/  # Ready-to-use modules
-│   ├── python-data-science/
-│   │   ├── src/
-│   │   │   ├── data/
-│   │   │   ├── preprocessing/
-│   │   │   │   ├── encoding/
-│   │   │   │   └── scaling/
-│   │   │   ├── features/
-│   │   │   │   ├── engineering/
-│   │   │   │   ├── selection/
-│   │   │   │   └── extraction/
-│   │   │   ├── models/
-│   │   │   │   ├── supervised/
-│   │   │   │   ├── unsupervised/
-│   │   │   │   ├── ensemble/
-│   │   │   │   └── deep-learning/
-│   │   │   ├── training/
-│   │   │   ├── evaluation/
-│   │   │   ├── visualization/
-│   │   │   │   └── plots/
-│   │   │   └── optimization/
-│   │   ├── notebooks/
-│   │   │   ├── eda/
-│   │   │   ├── modeling/
-│   │   │   └── deployment/
-│   │   ├── config/
-│   │   │   ├── hyperparameters/
-│   │   │   └── features/
-│   │   ├── data/
-│   │   │   ├── raw/
-│   │   │   ├── processed/
-│   │   │   ├── interim/
-│   │   │   └── external/
-│   │   ├── scripts/
-│   │   │   ├── pipeline/
-│   │   │   ├── evaluation/
-│   │   │   └── deployment/
-│   │   └── tests/
-│   │
-│   ├── nodejs-typescript/
-│   │   ├── src/
-│   │   │   ├── controllers/
-│   │   │   ├── services/
-│   │   │   ├── models/
-│   │   │   │   ├── dto/
-│   │   │   │   └── interfaces/
-│   │   │   ├── repositories/
-│   │   │   ├── middleware/
-│   │   │   ├── validators/
-│   │   │   ├── routes/
-│   │   │   │   ├── v1/
-│   │   │   │   └── v2/
-│   │   │   ├── database/
-│   │   │   │   ├── migrations/
-│   │   │   │   └── seeders/
-│   │   │   ├── config/
-│   │   │   └── utils/
-│   │   ├── tests/
-│   │   │   ├── unit/
-│   │   │   ├── integration/
-│   │   │   └── e2e/
-│   │   ├── docker/
-│   │   └── scripts/
-│   │
-│   ├── go-high-performance/
-│   │   ├── cmd/
-│   │   │   ├── server/
-│   │   │   ├── worker/
-│   │   │   └── migrator/
-│   │   ├── internal/
-│   │   │   ├── handlers/
-│   │   │   │   ├── http/
-│   │   │   │   ├── grpc/
-│   │   │   │   └── websocket/
-│   │   │   ├── middleware/
-│   │   │   ├── services/
-│   │   │   ├── repositories/
-│   │   │   ├── validators/
-│   │   │   └── config/
-│   │   ├── pkg/
-│   │   │   ├── database/
-│   │   │   ├── cache/
-│   │   │   ├── queue/
-│   │   │   ├── logger/
-│   │   │   ├── metrics/
-│   │   │   ├── tracing/
-│   │   │   ├── encryption/
-│   │   │   └── validation/
-│   │   ├── migrations/
-│   │   └── tests/
-│   │
-│   └── php-modern/
-│       ├── app/
-│       │   ├── Http/
-│       │   │   ├── Controllers/
-│       │   │   │   └── Api/
-│       │   │   ├── Middleware/
-│       │   │   └── Requests/
-│       │   ├── Models/
-│       │   ├── Services/
-│       │   │   ├── Contracts/
-│       │   │   └── Implementations/
-│       │   ├── Repositories/
-│       │   │   ├── Contracts/
-│       │   │   ├── Implementations/
-│       │   │   └── Eloquent/
-│       │   ├── Console/
-│       │   │   └── Commands/
-│       │   ├── Events/
-│       │   ├── Jobs/
-│       │   ├── Mail/
-│       │   ├── Notifications/
-│       │   └── Policies/
-│       ├── config/
-│       ├── database/
-│       │   ├── migrations/
-│       │   ├── seeders/
-│       │   └── factories/
-│       ├── resources/
-│       │   └── views/
-│       └── routes/
-│
-├── devops-and-automation/
-│   ├── docker-compose/
-│   │   └── services/
-│   │       ├── postgres/
-│   │       ├── mysql/
-│   │       ├── mongo/
-│   │       ├── redis/
-│   │       ├── elasticsearch/
-│   │       ├── nginx/
-│   │       └── rabbitmq/
-│   ├── kubernetes/
-│   │   ├── namespaces/
-│   │   ├── services/
-│   │   ├── deployments/
-│   │   ├── configmaps/
-│   │   ├── secrets/
-│   │   └── ingress/
-│   ├── terraform/
-│   │   ├── modules/
-│   │   │   ├── vpc/
-│   │   │   ├── ec2/
-│   │   │   ├── rds/
-│   │   │   ├── s3/
-│   │   │   ├── iam/
-│   │   │   └── eks/
-│   │   └── environments/
-│   │       ├── dev/
-│   │       ├── staging/
-│   │       └── prod/
-│   ├── ansible/
-│   │   ├── playbooks/
-│   │   └── roles/
-│   │       ├── common/
-│   │       ├── docker/
-│   │       ├── k8s/
-│   │       └── monitoring/
-│   ├── scripts/
-│   │   ├── deployment/
-│   │   ├── database/
-│   │   │   ├── backup/
-│   │   │   ├── migrate/
-│   │   │   └── seed/
-│   │   ├── monitoring/
-│   │   └── health-check/
-│   └── ci-cd/
-│
-├── academic-utilities/
-│   ├── latex/
-│   │   ├── thesis/
-│   │   │   ├── chapters/
-│   │   │   └── figures/
-│   │   ├── report/
-│   │   └── presentation/
-│   ├── markdown/
-│   │   ├── templates/
-│   │   │   ├── academic/
-│   │   │   ├── technical/
-│   │   │   └── blog/
-│   │   ├── parsers/
-│   │   └── renderers/
-│   ├── visualization/
-│   │   ├── charts/
-│   │   │   ├── bar/
-│   │   │   ├── line/
-│   │   │   ├── pie/
-│   │   │   ├── heatmap/
-│   │   │   └── scatter/
-│   │   └── dashboards/
-│   └── templates/
-│       ├── skripsi/
-│       ├── makalah/
-│       └── laporan-praktikum/
-│
-├── documentation/
-│   ├── api/
-│   │   ├── swagger/
-│   │   ├── openapi/
-│   │   └── postman/
-│   ├── guides/
-│   │   ├── installation/
-│   │   ├── deployment/
-│   │   └── development/
-│   ├── architecture/
-│   │   ├── patterns/
-│   │   │   └── decisions/
-│   │   └── overview/
-│   └── database/
-│       └── erd.md
-│
-└── tools/
-    ├── testing/
-    │   ├── mock-servers/
-    │   └── data-generators/
-    ├── security/
-    │   ├── scanners/
-    │   └── audits/
-    └── performance/
-        ├── load-testing/
-        └── profiling/
+├── .github/workflows/                 # CI and security automation
+├── academic-utilities/                # LaTeX, Markdown, chart/report utilities
+├── core-architectures/                # MVC, microservices, serverless references
+├── devops-and-automation/             # Docker Compose, Kubernetes, scripts
+├── documentation/                     # API, ERD, installation docs
+├── multi-language-modules/            # Node.js, Python, Go, PHP modules
+├── .env.example                       # Safe local configuration template
+├── Makefile                           # Developer commands
+├── setup.sh                           # Bootstrap script
+└── README.md
 ```
 
 ---
 
-## 🧩 Modules
+## Examples
 
-### Python Data Science Module
+### Create a User in the Node API
 
-**Technology Stack:**
-- Python 3.9+
-- Scikit-learn, Pandas, NumPy
-- TensorFlow, PyTorch
-- FastAPI
-- Matplotlib, Seaborn
-
-**Features:**
-- Data preprocessing (encoding, scaling, imputation)
-- Feature engineering and selection
-- ML models (supervised, unsupervised, ensemble)
-- Deep learning neural networks
-- Model training pipelines
-- Visualization and reporting
-
-```python
-# Example: Training a model
-from src.models.supervised import RegressorTrainer
-from src.preprocessing.scaling import ScalerFactory
-
-scaler = ScalerFactory.create('standard')
-X_scaled = scaler.fit_transform(X_train)
-
-trainer = RegressorTrainer('random_forest', {'n_estimators': 100})
-trainer.train(X_scaled, y_train)
+```bash
+curl -X POST http://localhost:3000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Jane Doe","email":"jane@example.com","password":"Password123"}'
 ```
 
-### Node.js TypeScript Module
+### Python Compile Check
 
-**Technology Stack:**
-- Node.js 18+
-- TypeScript 5.x
-- Express.js / NestJS
-- Prisma / Mongoose
-- JWT Authentication
-
-**Features:**
-- Type-safe APIs
-- RESTful and GraphQL endpoints
-- JWT and OAuth2 authentication
-- Input validation and sanitization
-- Database migrations
-
-```typescript
-// Example: Creating a user
-import { UserController } from './controllers/user.controller';
-
-const controller = new UserController(new UserService());
-await controller.create(req, res);
+```bash
+python3 -m compileall -q academic-utilities multi-language-modules/python-data-science devops-and-automation
 ```
 
-### Go High-Performance Module
+### Docker Demo Config Validation
 
-**Technology Stack:**
-- Go 1.20+
-- Gin-Gonic framework
-- pgx database driver
-- Redis client
-- gRPC
-
-**Features:**
-- High-concurrency handling
-- Database connection pooling
-- gRPC services
-- Middleware chain
-- Prometheus metrics
-
-```go
-// Example: HTTP handler
-func handleUsers(w http.ResponseWriter, r *http.Request) {
-    ctx := context.Background()
-    users, _ := db.Query(ctx, "SELECT * FROM users")
-    json.NewEncoder(w).Encode(users)
-}
-```
-
-### PHP Modern Module
-
-**Technology Stack:**
-- PHP 8.1+
-- Laravel / Symfony
-- Eloquent ORM
-- PSR-4 autoloading
-
-**Features:**
-- Clean Architecture
-- Service Layer pattern
-- Repository pattern
-- Event-driven programming
-- Queue jobs
-
-```php
-// Example: User service
-$user = $userService->create([
-    'name' => 'John Doe',
-    'email' => 'john@example.com',
-    'password' => 'secret123'
-]);
+```bash
+docker compose -f devops-and-automation/docker-compose/docker-compose.demo.yml config
 ```
 
 ---
 
+## Roadmap
+
+See [`ROADMAP.md`](ROADMAP.md).
+
+---
+
+## Troubleshooting
+
+### `npm ci` fails
+
+Delete `node_modules` in the Node module and retry:
+
+```bash
+cd multi-language-modules/nodejs-typescript
+rm -rf node_modules
+npm ci
+```
+
+### Port 3000 already used
+
+```bash
+PORT=3001 npm run dev
+```
+
+### Production JWT error
+
+Set a strong secret:
+
+```bash
+export JWT_SECRET="replace-with-a-long-random-secret"
+```
+
+---
+
+## FAQ
+
+### Is every module production-ready?
+
+No. The primary Node.js module is the runnable baseline. Other modules are preserved and improved as scaffolds/previews for learning and expansion.
+
+### Can this be used as a commercial product base?
+
+Yes, after adapting the scaffold modules, configuring secrets, adding your business-specific persistence, and running your own security review.
+
+### Why keep preview/scaffold modules?
+
+Architect-Prime is intended to be a broad architecture reference. The goal is to improve quality without deleting the original multi-stack vision.
 
 <p align="center">
   <img src="assets/academic-documentation-realistic.png" alt="Architect-Prime academic documentation toolkit" width="100%">
 </p>
 
-## 📚 Documentation
+---
 
-| Document | Description |
-|----------|-------------|
-| [Installation Guide](documentation/installation.md) | Setup dan konfigurasi |
-| [API Documentation](documentation/api/) | REST API reference |
-| [ERD Database](documentation/database/erd.md) | Schema dan relasi |
-| [Architecture Patterns](documentation/architecture/) | Design patterns |
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SUPPORT.md`](SUPPORT.md).
 
 ---
 
-## 🔒 Security
+## Security
 
-- Static Application Security Testing (SAST)
-- Dependency vulnerability scanning
-- Secrets detection
-- Container scanning
-- Dynamic Application Security Testing (DAST)
+See [`SECURITY.md`](SECURITY.md).
 
 ---
 
-## 📈 CI/CD Pipeline
+## License
 
-Workflow otomatis termasuk:
-- ✅ Linting (ESLint, Go fmt, PHP CS Fixer)
-- ✅ Unit Testing (Jest, Go test, PHPUnit)
-- ✅ Integration Testing
-- ✅ Security Scanning
-- ✅ Docker Build & Push
-- ✅ Deployment to staging/production
-
----
-
-## 🤝 Contributing
-
-Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk detail tentang cara berkontribusi.
-
----
-
-## 📄 License
-
-MIT License - lihat [LICENSE](LICENSE) untuk informasi lebih lanjut.
-
----
-
-**Built with ❤️ for students, by students**
-
-**Version:** 1.0.0 | **Last Updated:** 2024-07-02
+MIT License. See [`LICENSE`](LICENSE).

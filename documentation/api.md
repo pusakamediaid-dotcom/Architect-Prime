@@ -1,80 +1,71 @@
 # API Documentation
 
-## REST API Endpoints
+The primary runnable API is located in:
 
-### Authentication
+```text
+multi-language-modules/nodejs-typescript
+```
 
-#### POST /api/auth/register
-Register a new user.
+## Base URL
 
-**Request:**
-\`\`\`json
+```text
+http://localhost:3000
+```
+
+## Endpoints
+
+### Health
+
+```http
+GET /health
+```
+
+### Register Demo User
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123"
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "Password123"
 }
-\`\`\`
+```
 
-**Response:**
-\`\`\`json
+### Login Demo User
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
 {
-  "success": true,
-  "user": { "id": "1", "name": "John Doe", "email": "john@example.com" },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "email": "jane@example.com",
+  "password": "Password123"
 }
-\`\`\`
+```
 
-#### POST /api/auth/login
-Login user.
+### Create User
 
-**Request:**
-\`\`\`json
+```http
+POST /api/users
+Content-Type: application/json
+
 {
-  "email": "john@example.com",
-  "password": "password123"
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "Password123"
 }
-\`\`\`
+```
 
-### Users
+### List Users
 
-#### GET /api/users
-Get all users (requires authentication).
+```http
+GET /api/users
+```
 
-**Headers:**
-\`\`\`
-Authorization: Bearer <token>
-\`\`\`
+Swagger UI is available at:
 
-**Response:**
-\`\`\`json
-{
-  "users": [...],
-  "pagination": { "page": 1, "total": 50 }
-}
-\`\`\`
-
-#### GET /api/users/{id}
-Get user by ID.
-
-#### PUT /api/users/{id}
-Update user.
-
-#### DELETE /api/users/{id}
-Delete user.
-
-## Error Responses
-
-\`\`\`json
-{
-  "error": "Error message",
-  "code": "ERROR_CODE"
-}
-\`\`\`
-
-| Code | Description |
-|------|-------------|
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 404 | Not Found |
-| 500 | Internal Server Error |
+```text
+http://localhost:3000/docs
+```

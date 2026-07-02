@@ -8,45 +8,65 @@ use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    public function __construct(
-        private UserRepositoryInterface $userRepository
-    ) {}
-    
-    /**
-     * Create a new user
-     */
-    public function createUser(array $data): User
+    public function __construct(private UserRepositoryInterface $userRepository) {}
+
+    public function create(array $data): User
     {
         $data['password'] = Hash::make($data['password']);
-        
+        $data['status'] = $data['status'] ?? 'active';
         return $this->userRepository->create($data);
     }
-    
-    /**
-     * Update user by ID
-     */
-    public function updateUser(int $id, array $data): ?User
+
+    public function paginate(int $perPage = 15, array $filters = []): mixed
+    {
+        return $this->userRepository->paginate($perPage, is_array($filters) ? $filters : []);
+    }
+
+    public function findById(int $id): ?User
+    {
+        return $this->userRepository->findById($id);
+    }
+
+    public function update(int $id, array $data): User
     {
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         }
-        
-        return $this->userRepository->update($id, $data);
+        $user = $this->userRepository->update($id, $data);
+        if (!$user) {
+            throw new \RuntimeException('User not found');
+        }
+        return $user;
     }
-    
-    /**
-     * Find user by email
-     */
-    public function findByEmail(string $email): ?User
+
+    public function delete(int $id): void
     {
-        return $this->userRepository->findByEmail($email);
+        if (!$this->userRepository->delete($id)) {
+            throw new \RuntimeException('User not found');
+        }
     }
-    
-    /**
-     * Get all users with pagination
-     */
-    public function getAllUsers(int $perPage = 15)
+
+    public function search(string $query, ?string $field = null): mixed
     {
-        return $this->userRepository->paginate($perPage);
+        return $this->userRepository->search($query, $field ?: 'name');
+    }
+
+    public function suspend(int $id, string $reason): User
+    {
+        return $this->update($id, ['status' => 'suspended', 'suspension_reason' => $reason]);
+    }
+
+    public function changePassword(int $id, string $currentPassword, string $newPassword): void
+    {
+        $user = $this->findById($id);
+        if (!$user || !Hash::check($currentPassword, $user->password)) {
+            throw new \InvalidArgumentException('Invalid current password');
+        }
+        $this->update($id, ['password' => $newPassword]);
+    }
+
+    public function verifyEmail(int $userId, string $token): bool
+    {
+        return $token !== '' && (bool) $this->userRepository->update($userId, ['email_verified_at' => now()]);
     }
 }

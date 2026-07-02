@@ -3,56 +3,40 @@
 ## Prerequisites
 
 - Git
-- Node.js 18+
-- Python 3.10+
-- Docker (optional)
+- Node.js 20+
+- npm 10+
+- Python 3.11+
+- Docker 24+ for Docker validation/demo
 
-## Quick Start
+## Primary Runnable Demo
 
-### 1. Clone Repository
-\`\`\`bash
+```bash
 git clone https://github.com/pusakamediaid-dotcom/Architect-Prime.git
 cd Architect-Prime
-\`\`\`
-
-### 2. Choose Your Module
-
-#### Python Data Science
-\`\`\`bash
-cd multi-language-modules/python-data-science
-pip install -r requirements.txt
-\`\`\`
-
-#### Node.js TypeScript
-\`\`\`bash
-cd multi-language-modules/nodejs-typescript
-npm install
-\`\`\`
-
-#### Go High Performance
-\`\`\`bash
-cd multi-language-modules/go-high-performance
-go mod download
-\`\`\`
-
-### 3. Run with Docker
-\`\`\`bash
-cd devops-and-automation
-docker-compose up -d
-\`\`\`
-
-## Configuration
-
-Copy `.env.example` to `.env` and configure:
-
-\`\`\`bash
 cp .env.example .env
-\`\`\`
+bash setup.sh
+cd multi-language-modules/nodejs-typescript
+npm run dev
+```
 
-## Troubleshooting
+Open:
 
-Q: Module not found?
-A: Ensure you ran the install command for the specific module.
+- <http://localhost:3000/health>
+- <http://localhost:3000/docs>
 
-Q: Port already in use?
-A: Change the port in the configuration file.
+## Validation
+
+```bash
+make build
+make test
+```
+
+## Docker Demo Config
+
+```bash
+docker compose -f devops-and-automation/docker-compose/docker-compose.demo.yml config
+```
+
+## Notes
+
+The Node.js TypeScript API is the primary runnable baseline. Other modules are scaffold/previews unless their module README states otherwise.

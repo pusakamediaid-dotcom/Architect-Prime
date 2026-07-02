@@ -1,13 +1,17 @@
 /**
  * Authentication Service
+ *
+ * Demo-safe in-memory service for the runnable starter. Replace the repository
+ * adapter with Prisma/PostgreSQL for production persistence.
  */
 
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET: Secret = process.env.JWT_SECRET || 'dev-only-secret-change-me';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required in production');
+}
 
 interface LoginDto {
   email: string;
@@ -20,56 +24,56 @@ interface RegisterDto {
   password: string;
 }
 
+interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}
+
 export class AuthService {
-  
+  private users = new Map<string, AuthUser>();
+
   async register(data: RegisterDto) {
-    const existingUser = await prisma.user.findUnique({
-      where: { email: data.email }
-    });
-    
+    const email = data.email.toLowerCase();
+    const existingUser = Array.from(this.users.values()).find((user) => user.email === email);
     if (existingUser) {
       throw new Error('Email already registered');
     }
-    
-    const hashedPassword = await bcrypt.hash(data.password, 12);
-    
-    const user = await prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword
-      }
-    });
-    
-    const token = this.generateToken(user.id);
-    
-    return { user, token };
+
+    const user: AuthUser = {
+      id: crypto.randomUUID(),
+      name: data.name,
+      email,
+      password: await bcrypt.hash(data.password, 12),
+      role: 'user',
+    };
+    this.users.set(user.id, user);
+
+    const token = this.generateToken(user.id, user.role);
+    const { password, ...safeUser } = user;
+    return { user: safeUser, token };
   }
-  
+
   async login(data: LoginDto) {
-    const user = await prisma.user.findUnique({
-      where: { email: data.email }
-    });
-    
-    if (!user) {
+    const user = Array.from(this.users.values()).find(
+      (candidate) => candidate.email === data.email.toLowerCase(),
+    );
+    if (!user || !(await bcrypt.compare(data.password, user.password))) {
       throw new Error('Invalid credentials');
     }
-    
-    const isValid = await bcrypt.compare(data.password, user.password);
-    
-    if (!isValid) {
-      throw new Error('Invalid credentials');
-    }
-    
-    const token = this.generateToken(user.id);
-    
-    return { user, token };
+
+    const token = this.generateToken(user.id, user.role);
+    const { password, ...safeUser } = user;
+    return { user: safeUser, token };
   }
-  
-  private generateToken(userId: string): string {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+
+  private generateToken(userId: string, role = 'user'): string {
+    const options: SignOptions = { expiresIn: '1h' };
+    return jwt.sign({ userId, role }, JWT_SECRET, options);
   }
-  
+
   verifyToken(token: string) {
     return jwt.verify(token, JWT_SECRET);
   }

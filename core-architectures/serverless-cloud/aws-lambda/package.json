@@ -1,0 +1,19 @@
+{
+  "name": "architect-prime-serverless-aws",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "package": "serverless package",
+    "offline": "serverless offline"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "bcryptjs": "^2.4.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "serverless": "^3.39.0",
+    "serverless-dotenv-plugin": "^6.0.0",
+    "serverless-offline": "^13.8.0"
+  }
+}

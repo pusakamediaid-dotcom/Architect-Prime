@@ -59,7 +59,7 @@ class MarkdownReportGenerator:
     def add_image(self, src: str, alt: str, title: Optional[str] = None):
         img_tag = f"![{alt}]({src}"
         if title:
-            img_tag += f '"{title}"'
+            img_tag += f' "{title}"'
         img_tag += ")"
         
         self.sections.append(f"\n{img_tag}\n")
@@ -126,7 +126,7 @@ class MarkdownReportGenerator:
         
         lines = ["\n## List of Figures\n"]
         for fig in self.figures:
-            lines.append(f"{fig['number']}. {fig['title']} (page {})")
+            lines.append(f"{fig['number']}. {fig['title']}")
         
         return "\n".join(lines)
 

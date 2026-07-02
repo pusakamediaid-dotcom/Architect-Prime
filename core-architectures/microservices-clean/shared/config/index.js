@@ -1,5 +1,13 @@
 'use strict';
 
+const requireSecret = (key, fallback) => {
+  if (process.env[key]) return process.env[key];
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(`${key} is required in production`);
+  }
+  return fallback;
+};
+
 const config = {
   env: process.env.NODE_ENV || 'development',
   
@@ -41,7 +49,7 @@ const config = {
       port: parseInt(process.env.POSTGRES_PORT || '5432'),
       database: process.env.POSTGRES_DB || 'architect_prime',
       user: process.env.POSTGRES_USER || 'postgres',
-      password: process.env.POSTGRES_PASSWORD || 'postgres',
+      password: requireSecret('POSTGRES_PASSWORD', 'postgres'),
       pool: {
         min: 2,
         max: 10
@@ -73,7 +81,7 @@ const config = {
   },
 
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
+    secret: requireSecret('JWT_SECRET', 'dev-only-secret-change-me'),
     expiresIn: '7d',
     refreshExpiresIn: '30d',
     algorithm: 'HS256'
@@ -87,7 +95,7 @@ const config = {
   },
 
   cors: {
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: (process.env.CORS_ORIGIN || 'http://localhost:3000').split(','),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
     credentials: true
