@@ -6,6 +6,10 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/pusakamediaid-dotcom/Architect-Prime/ci.yml)](https://github.com/pusakamediaid-dotcom/Architect-Prime/actions)
 
+<p align="center">
+  <img src="assets/academic-workflow-realistic.png" alt="Architect-Prime academic software development workflow" width="100%">
+</p>
+
 ---
 
 ## 📋 Table of Contents
@@ -35,19 +39,6 @@
 
 ---
 
-## 🖼️ Visual Gallery
-
-Berikut visual realistis dan profesional yang menggambarkan alur kerja Architect-Prime dalam konteks akademik, modular repository, DevOps demo, dan dokumentasi proyek.
-
-| Academic Workflow | Repository Modules |
-|---|---|
-| <img src="assets/academic-workflow-realistic.png" alt="Academic Workflow" width="100%"> | <img src="assets/repository-modules-realistic.png" alt="Repository Modules" width="100%"> |
-
-| DevOps Demo Setup | Academic Documentation |
-|---|---|
-| <img src="assets/devops-demo-realistic.png" alt="DevOps Demo Setup" width="100%"> | <img src="assets/academic-documentation-realistic.png" alt="Academic Documentation" width="100%"> |
-
----
 
 ## ✨ Features
 
@@ -59,6 +50,10 @@ Berikut visual realistis dan profesional yang menggambarkan alur kerja Architect
 | 📊 **Academic Utilities** | LaTeX Thesis, Markdown Generator, Data Visualization |
 | 📚 **API Documentation** | OpenAPI/Swagger, Postman Collections, ERD |
 | ⚡ **CI/CD Workflows** | GitHub Actions untuk linting, testing, deployment |
+
+<p align="center">
+  <img src="assets/repository-modules-realistic.png" alt="Architect-Prime modular repository organization" width="100%">
+</p>
 
 ---
 
@@ -109,6 +104,10 @@ cd multi-language-modules/php-modern
 composer install
 php artisan serve
 ```
+
+<p align="center">
+  <img src="assets/devops-demo-realistic.png" alt="Architect-Prime local DevOps demo setup" width="100%">
+</p>
 
 ---
 
@@ -523,6 +522,11 @@ $user = $userService->create([
 ```
 
 ---
+
+
+<p align="center">
+  <img src="assets/academic-documentation-realistic.png" alt="Architect-Prime academic documentation toolkit" width="100%">
+</p>
 
 ## 📚 Documentation
 
