@@ -1,18 +1,23 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
+import { prisma } from '../src/database/prisma';
 
 async function main() {
+  const passwordHash = await bcrypt.hash('Password123', 12);
   await prisma.user.upsert({
     where: { email: 'demo@architect-prime.local' },
-    update: {},
-    create: {
-      name: 'Demo User',
-      email: 'demo@architect-prime.local',
-      password: await bcrypt.hash('Password123', 12),
+    update: {
+      name: 'Demo Admin',
       role: 'admin',
       status: 'active',
+    },
+    create: {
+      name: 'Demo Admin',
+      email: 'demo@architect-prime.local',
+      passwordHash,
+      role: 'admin',
+      status: 'active',
+      emailVerified: true,
+      metadataJson: JSON.stringify({ seeded: true }),
     },
   });
 }

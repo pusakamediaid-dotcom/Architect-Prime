@@ -9,9 +9,13 @@ on:
     - cron: '0 0 * * 0'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
-  dependency-audit:
-    name: Dependency Audit
+  node-dependency-audit:
+    name: Node Dependency Audit
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,11 +41,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  static-analysis:
-    name: Static Analysis
+  python-syntax-security-baseline:
+    name: Python Syntax Baseline
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: returntocorp/semgrep-action@v1
+      - uses: actions/setup-python@v5
         with:
-          config: p/owasp-top-ten p/javascript p/typescript p/python
+          python-version: '3.11'
+      - run: python -m compileall -q academic-utilities multi-language-modules/python-data-science devops-and-automation

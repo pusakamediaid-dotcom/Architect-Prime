@@ -6,17 +6,19 @@ export interface CreateUserDto {
   dateOfBirth?: Date;
   address?: AddressDto;
   role?: UserRole;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateUserDto {
   name?: string;
   email?: string;
-  phone?: string;
-  dateOfBirth?: Date;
-  address?: AddressDto;
-  avatar?: string;
-  metadata?: Record<string, any>;
+  phone?: string | null;
+  dateOfBirth?: Date | null;
+  address?: AddressDto | null;
+  avatar?: string | null;
+  role?: UserRole;
+  status?: UserStatus;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AddressDto {
@@ -38,7 +40,7 @@ export interface UserDto {
   status: UserStatus;
   emailVerified: boolean;
   avatar: string | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,7 +80,7 @@ export interface UserFilterDto {
 
 export interface AuthTokens {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
   expiresIn: number;
 }
 

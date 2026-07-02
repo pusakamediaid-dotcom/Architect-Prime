@@ -6,7 +6,9 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
   const statusCode = err instanceof AppException ? err.statusCode : 500;
   const code = err instanceof AppException ? err.code : 'INTERNAL_ERROR';
 
-  logger.error(`${req.method} ${req.path} failed`, { code, message: err.message });
+  if (process.env.NODE_ENV !== 'test') {
+    logger.error(`${req.method} ${req.path} failed`, { code, message: err.message });
+  }
 
   res.status(statusCode).json({
     success: false,

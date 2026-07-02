@@ -37,3 +37,7 @@ coverage/
 tmp/
 temp/
 *.tmp
+*.db
+*.db-journal
+multi-language-modules/nodejs-typescript/prisma/dev.db
+multi-language-modules/nodejs-typescript/prisma/test.db

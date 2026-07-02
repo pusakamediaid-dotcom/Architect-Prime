@@ -1,88 +1,57 @@
 import bcrypt from 'bcrypt';
 import { CreateUserDto, UpdateUserDto, UserDto } from '../models/dto/user.dto';
 import { NotFoundException } from '../exceptions/not-found.exception';
-
-interface StoredUser extends UserDto {
-  passwordHash: string;
-}
-
-const sanitize = (user: StoredUser): UserDto => {
-  const { passwordHash, ...safeUser } = user;
-  void passwordHash;
-  return safeUser;
-};
+import { ValidationException } from '../exceptions/validation.exception';
+import { UserRepository, userRepository } from '../repositories/user.repository';
 
 export class UserService {
-  private users = new Map<string, StoredUser>();
+  constructor(private readonly users: UserRepository = userRepository) {}
 
   async create(dto: CreateUserDto): Promise<UserDto> {
-    const now = new Date();
-    const user: StoredUser = {
-      id: crypto.randomUUID(),
-      name: dto.name,
-      email: dto.email.toLowerCase(),
-      phone: dto.phone ?? null,
-      dateOfBirth: dto.dateOfBirth ?? null,
-      address: dto.address ?? null,
-      role: dto.role ?? 'user',
-      status: 'active',
-      emailVerified: false,
-      avatar: null,
-      metadata: dto.metadata ?? {},
-      createdAt: now,
-      updatedAt: now,
+    const existingUser = await this.users.findByEmailWithPassword(dto.email);
+    if (existingUser) {
+      throw new ValidationException('Email already registered');
+    }
+    return this.users.create({
+      ...dto,
       passwordHash: await bcrypt.hash(dto.password, 12),
-    };
-    this.users.set(user.id, user);
-    return sanitize(user);
+    });
   }
 
   async findById(id: string): Promise<UserDto | null> {
-    const user = this.users.get(id);
-    return user ? sanitize(user) : null;
+    return this.users.findById(id);
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<UserDto> {
-    const user = this.users.get(id);
+    const user = await this.users.update(id, dto);
     if (!user) throw new NotFoundException('User');
-    const updated: StoredUser = { ...user, ...dto, updatedAt: new Date() };
-    this.users.set(id, updated);
-    return sanitize(updated);
+    return user;
   }
 
   async delete(id: string): Promise<void> {
-    if (!this.users.delete(id)) throw new NotFoundException('User');
+    const deleted = await this.users.delete(id);
+    if (!deleted) throw new NotFoundException('User');
   }
 
   async findAll(filter: { page: number; limit: number; role?: string; status?: string }) {
-    const page = Math.max(filter.page || 1, 1);
-    const limit = Math.min(Math.max(filter.limit || 20, 1), 100);
-    let data = Array.from(this.users.values());
-    if (filter.role) data = data.filter((user) => user.role === filter.role);
-    if (filter.status) data = data.filter((user) => user.status === filter.status);
-    const total = data.length;
-    const start = (page - 1) * limit;
-    return {
-      data: data.slice(start, start + limit).map(sanitize),
-      meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
-    };
+    return this.users.list(filter);
   }
 
-  async changePassword(id: string, _currentPassword: string, newPassword: string): Promise<void> {
-    const user = this.users.get(id);
+  async changePassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.users.findByEmailWithPassword((await this.users.findById(id))?.email ?? '');
     if (!user) throw new NotFoundException('User');
-    user.passwordHash = await bcrypt.hash(newPassword, 12);
-    user.updatedAt = new Date();
+    if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
+      throw new ValidationException('Current password is invalid');
+    }
+    const updated = await this.users.updatePasswordHash(id, await bcrypt.hash(newPassword, 12));
+    if (!updated) throw new NotFoundException('User');
   }
 
   async verifyEmail(_token: string): Promise<void> {
-    // Token verification is intentionally left as an integration point for email providers.
+    // Email verification requires an external token store/provider and is documented as extension point.
   }
 
   async search(query: string, field = 'name'): Promise<UserDto[]> {
-    const q = (query || '').toLowerCase();
-    return Array.from(this.users.values())
-      .filter((user) => String((user as unknown as Record<string, unknown>)[field] ?? '').toLowerCase().includes(q))
-      .map(sanitize);
+    return this.users.search(query || '', field);
   }
 }

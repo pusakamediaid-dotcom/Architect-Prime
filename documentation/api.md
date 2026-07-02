@@ -12,15 +12,11 @@ multi-language-modules/nodejs-typescript
 http://localhost:3000
 ```
 
-## Endpoints
+## Authentication
 
-### Health
+JWT is returned by register and login endpoints. Passwords are hashed with bcrypt and password hashes are never returned by the API.
 
-```http
-GET /health
-```
-
-### Register Demo User
+### Register
 
 ```http
 POST /api/auth/register
@@ -33,7 +29,7 @@ Content-Type: application/json
 }
 ```
 
-### Login Demo User
+### Login
 
 ```http
 POST /api/auth/login
@@ -45,6 +41,8 @@ Content-Type: application/json
 }
 ```
 
+## Users
+
 ### Create User
 
 ```http
@@ -52,20 +50,74 @@ POST /api/users
 Content-Type: application/json
 
 {
-  "name": "Jane Doe",
-  "email": "jane@example.com",
-  "password": "Password123"
+  "name": "John Smith",
+  "email": "john@example.com",
+  "password": "Password123",
+  "role": "moderator"
 }
 ```
 
 ### List Users
 
 ```http
-GET /api/users
+GET /api/users?page=1&limit=20
 ```
+
+### Get User
+
+```http
+GET /api/users/{id}
+```
+
+### Search Users
+
+```http
+GET /api/users/search?q=Jane&field=name
+```
+
+Allowed search fields:
+
+- `name`
+- `email`
+- `role`
+- `status`
+
+### Update User
+
+```http
+PUT /api/users/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Jane Updated",
+  "status": "active"
+}
+```
+
+### Delete User
+
+```http
+DELETE /api/users/{id}
+Authorization: Bearer <token>
+```
+
+## Documentation UI
 
 Swagger UI is available at:
 
 ```text
 http://localhost:3000/docs
+```
+
+## Error Shape
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Human-readable error"
+  }
+}
 ```
