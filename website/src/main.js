@@ -1,0 +1,79 @@
+const modules = [
+  { tag: 'Dasar', title: 'Struktur Proyek Modern', text: 'Mengenal folder, tanggung jawab komponen, dan aliran data aplikasi.' },
+  { tag: 'API', title: 'REST API dengan Express', text: 'Memahami route, controller, request, response, dan penanganan error.' },
+  { tag: 'Data', title: 'Prisma dan SQLite', text: 'Belajar schema, migrasi, seeding, repository, dan operasi basis data.' },
+  { tag: 'Keamanan', title: 'Autentikasi dan Otorisasi', text: 'Mengenal hashing, token, middleware, kepemilikan data, dan peran pengguna.' },
+  { tag: 'Kualitas', title: 'Pengujian Otomatis', text: 'Membedakan unit test, integration test, smoke test, dan cakupan pengujian.' },
+  { tag: 'Dokumentasi', title: 'Dokumentasi API', text: 'Membaca endpoint, status respons, contoh payload, dan Swagger UI.' },
+  { tag: 'DevOps', title: 'CI dan Otomasi', text: 'Memahami pemeriksaan build, test, audit dependensi, dan validasi konfigurasi.' },
+  { tag: 'Lanjutan', title: 'Arsitektur Multi-Bahasa', text: 'Meninjau pola dasar pada Node.js, Python, Go, PHP, dan serverless.' }
+]
+
+const quiz = [
+  { question: 'Lapisan mana yang seharusnya menangani aturan bisnis utama?', options: ['Controller', 'Service', 'File konfigurasi', 'Tampilan'], answer: 1, note: 'Service memusatkan aturan bisnis agar controller tetap tipis.' },
+  { question: 'Apa fungsi utama repository pada arsitektur aplikasi?', options: ['Mengatur warna antarmuka', 'Mengakses dan menyimpan data', 'Membuat dokumentasi', 'Menjalankan browser'], answer: 1, note: 'Repository menjadi batas antara logika aplikasi dan sumber data.' },
+  { question: 'Mengapa validasi input perlu dilakukan sebelum data diproses?', options: ['Agar berkas lebih besar', 'Agar input tidak valid ditolak lebih awal', 'Agar semua endpoint terbuka', 'Agar pengujian tidak diperlukan'], answer: 1, note: 'Validasi membantu mencegah data rusak dan perilaku yang tidak terduga.' },
+  { question: 'Jenis pengujian apa yang memeriksa hubungan beberapa komponen sekaligus?', options: ['Integration test', 'Pemeriksaan ejaan', 'Mockup visual', 'Komentar kode'], answer: 0, note: 'Integration test memeriksa kerja sama antarkomponen.' }
+]
+
+const grid = document.querySelector('#moduleGrid')
+const search = document.querySelector('#moduleSearch')
+const empty = document.querySelector('#emptyState')
+
+function renderModules(query = '') {
+  const normalized = query.trim().toLowerCase()
+  const filtered = modules.filter(item => `${item.tag} ${item.title} ${item.text}`.toLowerCase().includes(normalized))
+  grid.innerHTML = filtered.map(item => `
+    <article class="module-card">
+      <span>${item.tag}</span>
+      <h3>${item.title}</h3>
+      <p>${item.text}</p>
+    </article>
+  `).join('')
+  empty.hidden = filtered.length > 0
+}
+
+search.addEventListener('input', event => renderModules(event.target.value))
+renderModules()
+
+const menuButton = document.querySelector('#menuButton')
+const nav = document.querySelector('#mainNav')
+menuButton.addEventListener('click', () => nav.classList.toggle('open'))
+nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => nav.classList.remove('open')))
+
+let quizIndex = 0
+const counter = document.querySelector('#quizCounter')
+const question = document.querySelector('#quizQuestion')
+const options = document.querySelector('#quizOptions')
+const feedback = document.querySelector('#quizFeedback')
+const nextButton = document.querySelector('#nextQuestion')
+
+function renderQuiz() {
+  const item = quiz[quizIndex]
+  counter.textContent = `Soal ${quizIndex + 1} dari ${quiz.length}`
+  question.textContent = item.question
+  feedback.textContent = ''
+  nextButton.disabled = true
+  nextButton.textContent = quizIndex === quiz.length - 1 ? 'Ulangi Kuis' : 'Soal Berikutnya'
+  options.innerHTML = item.options.map((option, index) => `<button class="quiz-option" data-index="${index}" type="button">${option}</button>`).join('')
+  options.querySelectorAll('button').forEach(button => button.addEventListener('click', selectAnswer))
+}
+
+function selectAnswer(event) {
+  const selected = Number(event.currentTarget.dataset.index)
+  const item = quiz[quizIndex]
+  options.querySelectorAll('button').forEach((button, index) => {
+    button.disabled = true
+    if (index === item.answer) button.classList.add('correct')
+    if (index === selected && selected !== item.answer) button.classList.add('wrong')
+  })
+  feedback.textContent = selected === item.answer ? `Benar. ${item.note}` : `Belum tepat. ${item.note}`
+  nextButton.disabled = false
+}
+
+nextButton.addEventListener('click', () => {
+  quizIndex = quizIndex === quiz.length - 1 ? 0 : quizIndex + 1
+  renderQuiz()
+})
+
+renderQuiz()
