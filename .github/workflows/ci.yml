@@ -18,6 +18,17 @@ jobs:
       - name: Compile Python modules
         run: python -m compileall -q academic-utilities multi-language-modules/python-data-science devops-and-automation
 
+  static-site-validation:
+    name: Static Student Hub Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Validate Pusaka Student Hub static files
+        run: node scripts/validate-static-site.mjs
+
   node-production-baseline:
     name: Node.js Prisma Build, Test, Coverage, Audit
     runs-on: ubuntu-latest

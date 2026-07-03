@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://architect-prime-gamma.vercel.app/sitemap.xml

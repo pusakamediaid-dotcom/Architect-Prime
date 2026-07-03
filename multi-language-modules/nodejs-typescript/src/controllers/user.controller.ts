@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../services/user.service';
 import { CreateUserDto, UpdateUserDto } from '../models/dto/user.dto';
-import { ValidationException } from '../exceptions/validation.exception';
 import { NotFoundException } from '../exceptions/not-found.exception';
+import { AuthRequest } from '../middleware/auth.middleware';
 
 export class UserController {
   private userService: UserService;
@@ -25,11 +25,19 @@ export class UserController {
     try {
       const { id } = req.params;
       const user = await this.userService.findById(id);
-      
-      if (!user) {
-        throw new NotFoundException('User');
-      }
-      
+      if (!user) throw new NotFoundException('User');
+      res.json({ success: true, data: user });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMe(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = req.user?.userId;
+      if (!id) throw new NotFoundException('User');
+      const user = await this.userService.findById(id);
+      if (!user) throw new NotFoundException('User');
       res.json({ success: true, data: user });
     } catch (error) {
       next(error);
@@ -47,6 +55,18 @@ export class UserController {
     }
   }
 
+  async updateMe(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = req.user?.userId;
+      if (!id) throw new NotFoundException('User');
+      const dto = req.body as UpdateUserDto;
+      const user = await this.userService.updateMe(id, dto);
+      res.json({ success: true, data: user });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
@@ -57,28 +77,37 @@ export class UserController {
     }
   }
 
+  async deleteMe(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = req.user?.userId;
+      if (!id) throw new NotFoundException('User');
+      await this.userService.delete(id);
+      res.json({ success: true, message: 'Your account was deleted successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async list(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = '1', limit = '20', role, status } = req.query;
-      
       const result = await this.userService.findAll({
         page: parseInt(page as string, 10),
         limit: parseInt(limit as string, 10),
         role: role as string,
-        status: status as string
+        status: status as string,
       });
-      
       res.json({ success: true, ...result });
     } catch (error) {
       next(error);
     }
   }
 
-  async changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async changePassword(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { id } = req.params;
+      const id = req.user?.userId || req.params.id;
+      if (!id) throw new NotFoundException('User');
       const { currentPassword, newPassword } = req.body;
-      
       await this.userService.changePassword(id, currentPassword, newPassword);
       res.json({ success: true, message: 'Password changed successfully' });
     } catch (error) {
@@ -86,11 +115,9 @@ export class UserController {
     }
   }
 
-  async verifyEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async verifyEmail(_req: Request, _res: Response, next: NextFunction): Promise<void> {
     try {
-      const { token } = req.query;
-      await this.userService.verifyEmail(token as string);
-      res.json({ success: true, message: 'Email verified successfully' });
+      await this.userService.verifyEmail('');
     } catch (error) {
       next(error);
     }

@@ -12,6 +12,40 @@
   <img src="assets/academic-workflow-realistic.png" alt="Architect-Prime academic software development workflow" width="100%">
 </p>
 
+
+
+## Pusaka Student Hub
+
+Website bonus ringan untuk mahasiswa dan pelajar. Versi live static-first berjalan di Vercel dan dirancang untuk pengguna non-teknis, terutama pengguna HP Android.
+
+Live site:
+
+```text
+https://architect-prime-gamma.vercel.app/
+```
+
+### Fitur
+
+- Tugas
+- Jadwal
+- Nilai
+- Checklist
+- Target
+- Catatan
+- Template akademik
+- Export/import data lokal
+
+### Cara Pakai
+
+Buka website Vercel, lalu mulai isi data. Tidak perlu akun. Data MVP tersimpan di browser pengguna menggunakan `localStorage`, bukan di server.
+
+### Untuk Pembeli Ebook Pusaka Media ID
+
+Pusaka Student Hub dapat diposisikan sebagai bonus praktis untuk membantu pembaca mengatur tugas, jadwal belajar, target semester, progres akademik, dan template pekerjaan kuliah.
+
+Dokumentasi pengguna awam tersedia di [`docs/user-guide/`](docs/user-guide/).
+
+
 ---
 
 ## Overview

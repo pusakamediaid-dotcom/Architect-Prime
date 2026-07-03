@@ -1,0 +1,9 @@
+{
+  "name": "Pusaka Student Hub",
+  "short_name": "Student Hub",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#1457d9",
+  "description": "Website bonus untuk membantu mahasiswa mengatur tugas, jadwal, nilai, checklist, dan target akademik."
+}

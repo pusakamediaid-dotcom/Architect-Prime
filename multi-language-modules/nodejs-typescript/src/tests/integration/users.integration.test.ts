@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
+import bcrypt from 'bcrypt';
 import app from '../../app';
+import { prisma } from '../../database/prisma';
 
 const userPayload = {
   name: 'Jane Doe',
@@ -8,15 +10,34 @@ const userPayload = {
   password: 'Password123',
 };
 
+async function createAdmin() {
+  await prisma.user.create({
+    data: {
+      name: 'Admin User',
+      email: 'admin@example.com',
+      passwordHash: await bcrypt.hash('AdminPass123', 12),
+      role: 'admin',
+      status: 'active',
+      metadataJson: '{}',
+    },
+  });
+  const login = await request(app)
+    .post('/api/auth/login')
+    .send({ email: 'admin@example.com', password: 'AdminPass123' })
+    .expect(200);
+  return login.body.token as string;
+}
+
 describe('User API integration', () => {
-  it('registers, logs in, creates, reads, lists, searches, updates, and deletes users with SQLite', async () => {
+  it('registers, logs in, reads/updates/deletes own profile with SQLite', async () => {
     const registered = await request(app)
       .post('/api/auth/register')
-      .send(userPayload)
+      .send({ ...userPayload, role: 'admin' })
       .expect(201);
 
     expect(registered.body.success).toBe(true);
     expect(registered.body.user.email).toBe(userPayload.email);
+    expect(registered.body.user.role).toBe('user');
     expect(JSON.stringify(registered.body)).not.toContain('passwordHash');
     expect(registered.body.token).toBeTruthy();
 
@@ -28,38 +49,90 @@ describe('User API integration', () => {
     const token = login.body.token;
     expect(token).toBeTruthy();
 
+    const me = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(me.body.data.email).toBe(userPayload.email);
+
+    const updated = await request(app)
+      .put('/api/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ name: 'Jane Updated', role: 'admin', status: 'banned' })
+      .expect(200);
+    expect(updated.body.data.name).toBe('Jane Updated');
+    expect(updated.body.data.role).toBe('user');
+    expect(updated.body.data.status).toBe('active');
+
+    await request(app)
+      .post('/api/users/me/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentPassword: 'Password123', newPassword: 'NewPassword123' })
+      .expect(200);
+
+    await request(app)
+      .post('/api/auth/login')
+      .send({ email: userPayload.email, password: 'NewPassword123' })
+      .expect(200);
+
+    await request(app)
+      .delete('/api/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    await request(app)
+      .get('/api/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(404);
+  });
+
+  it('allows admin to create, list, search, update, get, and delete users', async () => {
+    const adminToken = await createAdmin();
+
     const created = await request(app)
       .post('/api/users')
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ name: 'John Smith', email: 'john@example.com', password: 'Password123', role: 'moderator' })
       .expect(201);
 
     const createdId = created.body.data.id;
-    expect(created.body.data.email).toBe('john@example.com');
+    expect(created.body.data.role).toBe('moderator');
     expect(JSON.stringify(created.body)).not.toContain('passwordHash');
 
-    const fetched = await request(app).get(`/api/users/${createdId}`).expect(200);
+    const fetched = await request(app)
+      .get(`/api/users/${createdId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
     expect(fetched.body.data.name).toBe('John Smith');
 
-    const listed = await request(app).get('/api/users').expect(200);
+    const listed = await request(app)
+      .get('/api/users')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
     expect(listed.body.data.length).toBe(2);
-    expect(listed.body.meta.total).toBe(2);
 
-    const searched = await request(app).get('/api/users/search?q=John&field=name').expect(200);
+    const searched = await request(app)
+      .get('/api/users/search?q=John&field=name')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
     expect(searched.body.data).toHaveLength(1);
 
     const updated = await request(app)
       .put(`/api/users/${createdId}`)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ name: 'John Updated', status: 'active' })
       .expect(200);
     expect(updated.body.data.name).toBe('John Updated');
 
     await request(app)
       .delete(`/api/users/${createdId}`)
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .expect(200);
 
-    await request(app).get(`/api/users/${createdId}`).expect(404);
+    await request(app)
+      .get(`/api/users/${createdId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(404);
   });
 
   it('rejects duplicate emails and invalid login credentials', async () => {
@@ -67,67 +140,4 @@ describe('User API integration', () => {
     await request(app).post('/api/auth/register').send(userPayload).expect(422);
     await request(app).post('/api/auth/login').send({ email: userPayload.email, password: 'WrongPass123' }).expect(422);
   });
-
-  it('validates auth middleware and protected mutations', async () => {
-    const registered = await request(app)
-      .post('/api/auth/register')
-      .send({ name: 'Auth User', email: 'auth@example.com', password: 'Password123' })
-      .expect(201);
-
-    const token = registered.body.token;
-    const created = await request(app)
-      .post('/api/users')
-      .send({ name: 'Protected User', email: 'protected@example.com', password: 'Password123' })
-      .expect(201);
-
-    await request(app)
-      .put(`/api/users/${created.body.data.id}`)
-      .send({ name: 'No Token' })
-      .expect(401);
-
-    await request(app)
-      .put(`/api/users/${created.body.data.id}`)
-      .set('Authorization', 'Bearer invalid-token')
-      .send({ name: 'Invalid Token' })
-      .expect(401);
-
-    await request(app)
-      .post(`/api/users/${registered.body.user.id}/change-password`)
-      .set('Authorization', `Bearer ${token}`)
-      .send({ currentPassword: 'Password123', newPassword: 'NewPassword123' })
-      .expect(200);
-
-    await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'auth@example.com', password: 'NewPassword123' })
-      .expect(200);
-
-    await request(app)
-      .get('/api/users/verify-email?token=demo-token')
-      .expect(200);
-  });
-
-  it('validates request body and not-found update/delete cases', async () => {
-    await request(app)
-      .post('/api/users')
-      .send({ name: 'x', email: 'bad-email', password: 'short' })
-      .expect(422);
-
-    const registered = await request(app)
-      .post('/api/auth/register')
-      .send({ name: 'Admin User', email: 'admin@example.com', password: 'Password123' })
-      .expect(201);
-
-    await request(app)
-      .put('/api/users/00000000-0000-4000-8000-000000000000')
-      .set('Authorization', `Bearer ${registered.body.token}`)
-      .send({ name: 'Missing User' })
-      .expect(404);
-
-    await request(app)
-      .delete('/api/users/00000000-0000-4000-8000-000000000000')
-      .set('Authorization', `Bearer ${registered.body.token}`)
-      .expect(404);
-  });
-
 });

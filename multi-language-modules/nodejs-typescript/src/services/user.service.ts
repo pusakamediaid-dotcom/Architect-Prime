@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { CreateUserDto, UpdateUserDto, UserDto } from '../models/dto/user.dto';
 import { NotFoundException } from '../exceptions/not-found.exception';
 import { ValidationException } from '../exceptions/validation.exception';
+import { AppException } from '../exceptions/app.exception';
 import { UserRepository, userRepository } from '../repositories/user.repository';
 
 export class UserService {
@@ -28,6 +29,11 @@ export class UserService {
     return user;
   }
 
+  async updateMe(id: string, dto: UpdateUserDto): Promise<UserDto> {
+    const { role: _role, status: _status, ...safeDto } = dto;
+    return this.update(id, safeDto);
+  }
+
   async delete(id: string): Promise<void> {
     const deleted = await this.users.delete(id);
     if (!deleted) throw new NotFoundException('User');
@@ -38,7 +44,9 @@ export class UserService {
   }
 
   async changePassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
-    const user = await this.users.findByEmailWithPassword((await this.users.findById(id))?.email ?? '');
+    const safeUser = await this.users.findById(id);
+    if (!safeUser) throw new NotFoundException('User');
+    const user = await this.users.findByEmailWithPassword(safeUser.email);
     if (!user) throw new NotFoundException('User');
     if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
       throw new ValidationException('Current password is invalid');
@@ -48,7 +56,7 @@ export class UserService {
   }
 
   async verifyEmail(_token: string): Promise<void> {
-    // Email verification requires an external token store/provider and is documented as extension point.
+    throw new AppException('Email verification is not implemented yet.', 501, 'NOT_IMPLEMENTED');
   }
 
   async search(query: string, field = 'name'): Promise<UserDto[]> {

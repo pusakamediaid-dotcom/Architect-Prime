@@ -30,3 +30,11 @@ Architect-Prime can be used as a professional starter and portfolio foundation. 
 3. Select the target database schema explicitly.
 4. Add domain-specific authorization and persistence policies.
 5. Complete module-specific production hardening before deployment.
+
+## Pusaka Student Hub MVP Limitations
+
+- Data disimpan di browser pengguna melalui `localStorage`, bukan cloud sync.
+- Jika browser/cache dihapus, data lokal dapat hilang kecuali pengguna melakukan export JSON.
+- Belum ada akun, login pengguna akhir, atau sinkronisasi antar perangkat.
+- Kalkulator nilai bersifat bantuan sederhana dan tidak menggantikan aturan resmi kampus/sekolah.
+- Website static MVP tidak menyimpan data pengguna di server.

@@ -3,58 +3,163 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Portal belajar arsitektur perangkat lunak untuk mahasiswa dan pelajar.">
-  <title>Architect Prime Learning Hub</title>
+  <meta name="description" content="Pusaka Student Hub membantu mahasiswa mengatur tugas, jadwal, nilai, checklist, target akademik, catatan, dan template belajar tanpa akun.">
+  <meta name="theme-color" content="#1457d9">
+  <meta property="og:title" content="Pusaka Student Hub">
+  <meta property="og:description" content="Website bonus untuk membantu mahasiswa mengatur tugas, jadwal, nilai, checklist, dan target akademik.">
+  <meta property="og:type" content="website">
+  <title>Pusaka Student Hub</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#home"><span class="brand-mark">AP</span><span><strong>Architect Prime</strong><small>Learning Hub</small></span></a>
-    <button id="menuButton" class="menu-button" type="button">Menu</button>
-    <nav id="mainNav"><a href="#modules">Modul</a><a href="#roadmap">Jalur Belajar</a><a href="#practice">Latihan</a><a href="#about">Tentang</a></nav>
+  <a class="skip-link" href="#mainContent">Lewati ke konten utama</a>
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">PS</span>
+      <div>
+        <strong>Pusaka Student Hub</strong>
+        <small>Bonus Pusaka Media ID</small>
+      </div>
+    </div>
+    <nav class="desktop-nav" aria-label="Navigasi utama">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#tasks">Tugas</a>
+      <a href="#schedule">Jadwal</a>
+      <a href="#grades">Nilai</a>
+      <a href="#more">Lainnya</a>
+    </nav>
   </header>
 
-  <main>
-    <section class="hero" id="home">
+  <main id="mainContent">
+    <section class="hero" id="dashboard">
       <div>
-        <p class="eyebrow">Bonus pembelajaran digital Pusaka Media ID</p>
-        <h1>Pelajari arsitektur perangkat lunak melalui contoh proyek nyata.</h1>
-        <p class="lead">Portal gratis untuk memahami API, basis data, autentikasi, pengujian, dokumentasi, dan struktur proyek modern secara bertahap.</p>
-        <div class="actions"><a class="button primary" href="#modules">Mulai Belajar</a><a class="button secondary" href="https://github.com/pusakamediaid-dotcom/Architect-Prime" target="_blank" rel="noreferrer">Lihat Repository</a></div>
-        <div class="chips"><span>Gratis</span><span>Ramah HP</span><span>Tanpa akun</span></div>
+        <p class="eyebrow">Website bonus untuk pembaca Pusaka Media ID</p>
+        <h1>Atur tugas, jadwal belajar, target akademik, checklist, catatan, dan nilai dalam satu tempat sederhana.</h1>
+        <p class="lead">Dibuat ringan, ramah HP Android, dan bisa digunakan tanpa akun. Semua data MVP tersimpan di browser Anda.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#tasks">Tambah Tugas</a>
+          <a class="button ghost" href="#templates">Lihat Template</a>
+        </div>
       </div>
-      <aside class="hero-card">
-        <p class="eyebrow">Alur utama</p><h2>Backend API Modern</h2>
-        <div class="flow"><span>Controller</span><b>→</b><span>Service</span><b>→</b><span>Repository</span><b>→</b><span>Database</span></div>
+      <aside class="summary-card" aria-label="Ringkasan data">
+        <h2>Ringkasan Hari Ini</h2>
+        <div class="stats-grid">
+          <div><b id="statTasks">0</b><span>Tugas aktif</span></div>
+          <div><b id="statDone">0</b><span>Selesai</span></div>
+          <div><b id="statSchedules">0</b><span>Jadwal</span></div>
+          <div><b id="statGoals">0%</b><span>Rata-rata target</span></div>
+        </div>
+        <p class="privacy-note">Mode local-first: data tidak dikirim ke server.</p>
       </aside>
     </section>
 
-    <section class="section" id="modules">
-      <div class="section-head"><div><p class="eyebrow">Materi utama</p><h2>Pilih modul belajar</h2></div><input id="moduleSearch" type="search" placeholder="Cari modul..."></div>
-      <div id="moduleGrid" class="module-grid"></div>
-      <p id="emptyState" hidden>Tidak ada modul yang cocok.</p>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <section class="panel" id="tasks">
+      <div class="section-title"><p class="eyebrow">Tugas</p><h2>Catat dan pantau deadline</h2></div>
+      <form id="taskForm" class="form-grid">
+        <label>Nama tugas<input id="taskTitle" required placeholder="Contoh: Ringkasan Bab 2"></label>
+        <label>Mata kuliah/pelajaran<input id="taskCourse" placeholder="Contoh: Manajemen"></label>
+        <label>Deadline<input id="taskDue" type="date"></label>
+        <label>Prioritas<select id="taskPriority"><option value="low">Rendah</option><option value="medium" selected>Sedang</option><option value="high">Tinggi</option></select></label>
+        <label>Status<select id="taskStatus"><option value="todo">Belum</option><option value="progress">Proses</option><option value="done">Selesai</option></select></label>
+        <button class="button primary" type="submit">Simpan Tugas</button>
+      </form>
+      <div id="taskList" class="card-list" aria-live="polite"></div>
     </section>
 
-    <section class="section muted" id="roadmap">
-      <p class="eyebrow">Jalur belajar</p><h2>Dari dasar hingga proyek siap dipresentasikan</h2>
-      <ol class="roadmap">
-        <li><span>01</span><div><h3>Kenali struktur proyek</h3><p>Pahami folder, tanggung jawab komponen, dan aliran data.</p></div></li>
-        <li><span>02</span><div><h3>Bangun API sederhana</h3><p>Pelajari route, controller, validasi input, dan respons.</p></div></li>
-        <li><span>03</span><div><h3>Hubungkan basis data</h3><p>Gunakan Prisma dan SQLite untuk migrasi serta operasi data.</p></div></li>
-        <li><span>04</span><div><h3>Tambahkan keamanan</h3><p>Pelajari autentikasi, middleware, dan otorisasi.</p></div></li>
-        <li><span>05</span><div><h3>Uji dan dokumentasikan</h3><p>Gunakan pengujian otomatis dan dokumentasi API.</p></div></li>
-      </ol>
+    <section class="panel" id="schedule">
+      <div class="section-title"><p class="eyebrow">Jadwal</p><h2>Rencana belajar dan aktivitas</h2></div>
+      <form id="scheduleForm" class="form-grid">
+        <label>Hari<select id="scheduleDay"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option></select></label>
+        <label>Jam<input id="scheduleTime" type="time"></label>
+        <label>Aktivitas<input id="scheduleActivity" required placeholder="Contoh: Belajar 30 menit"></label>
+        <label>Lokasi/Catatan<input id="scheduleNote" placeholder="Contoh: Perpustakaan"></label>
+        <button class="button primary" type="submit">Tambah Jadwal</button>
+      </form>
+      <div id="scheduleList" class="card-list"></div>
     </section>
 
-    <section class="section" id="practice">
-      <p class="eyebrow">Latihan mandiri</p><h2>Uji pemahaman</h2>
-      <article class="quiz-card"><p id="quizCounter"></p><h3 id="quizQuestion"></h3><div id="quizOptions"></div><p id="quizFeedback" aria-live="polite"></p><button id="nextQuestion" class="button primary" type="button" disabled>Soal Berikutnya</button></article>
+    <section class="panel" id="grades">
+      <div class="section-title"><p class="eyebrow">Nilai</p><h2>Kalkulator nilai sederhana</h2></div>
+      <form id="gradeForm" class="form-grid">
+        <label>Mata kuliah/pelajaran<input id="gradeCourse" required placeholder="Contoh: Statistika"></label>
+        <label>Komponen<input id="gradeComponent" required placeholder="Contoh: UTS"></label>
+        <label>Bobot %<input id="gradeWeight" type="number" min="0" max="100" required placeholder="30"></label>
+        <label>Nilai<input id="gradeScore" type="number" min="0" max="100" required placeholder="85"></label>
+        <button class="button primary" type="submit">Tambah Komponen</button>
+      </form>
+      <p id="gradeError" class="error-text" aria-live="polite"></p>
+      <div id="gradeList" class="card-list"></div>
     </section>
 
-    <section class="section muted" id="about"><p class="eyebrow">Tentang</p><h2>Dibangun dari Architect-Prime</h2><p>Website ini menjadikan repository teknis lebih mudah dipelajari. Modul selain baseline utama tetap diperlakukan sebagai bahan referensi dan pengembangan.</p></section>
+    <section class="panel" id="checklists">
+      <div class="section-title"><p class="eyebrow">Checklist</p><h2>Daftar kerja yang bisa dicentang</h2></div>
+      <form id="checklistForm" class="form-grid compact">
+        <label>Nama checklist<input id="checklistTitle" required placeholder="Contoh: Persiapan Presentasi"></label>
+        <button class="button primary" type="submit">Buat Checklist</button>
+      </form>
+      <div class="template-buttons" id="checklistTemplates"></div>
+      <div id="checklistList" class="card-list"></div>
+    </section>
+
+    <section class="panel" id="goals">
+      <div class="section-title"><p class="eyebrow">Target</p><h2>Target akademik dan progres</h2></div>
+      <form id="goalForm" class="form-grid">
+        <label>Target<input id="goalTitle" required placeholder="Contoh: Selesai membaca 3 bab"></label>
+        <label>Deadline<input id="goalDeadline" type="date"></label>
+        <label>Progress %<input id="goalProgress" type="number" min="0" max="100" value="0"></label>
+        <label>Status<select id="goalStatus"><option>Belum mulai</option><option>Berjalan</option><option>Selesai</option></select></label>
+        <button class="button primary" type="submit">Simpan Target</button>
+      </form>
+      <div id="goalList" class="card-list"></div>
+    </section>
+
+    <section class="panel" id="notes">
+      <div class="section-title"><p class="eyebrow">Catatan</p><h2>Simpan ide dan ringkasan</h2></div>
+      <form id="noteForm" class="form-grid note-form">
+        <label>Judul<input id="noteTitle" required placeholder="Contoh: Catatan Kuliah Minggu 3"></label>
+        <label>Kategori/Mata kuliah<input id="noteCategory" placeholder="Contoh: Ekonomi"></label>
+        <label class="full">Isi<textarea id="noteBody" rows="5" required placeholder="Tulis catatan singkat..."></textarea></label>
+        <button class="button primary" type="submit">Simpan Catatan</button>
+      </form>
+      <div id="noteList" class="card-list"></div>
+    </section>
+
+    <section class="panel" id="templates">
+      <div class="section-title"><p class="eyebrow">Template</p><h2>Template akademik siap salin</h2></div>
+      <div id="templateList" class="template-grid"></div>
+    </section>
+
+    <section class="panel" id="more">
+      <div class="section-title"><p class="eyebrow">Data & Bantuan</p><h2>Export, import, dan reset</h2></div>
+      <div class="data-actions">
+        <button id="exportData" class="button primary" type="button">Export Data JSON</button>
+        <label class="button ghost file-label">Import Data JSON<input id="importData" type="file" accept="application/json"></label>
+        <button id="resetData" class="button danger" type="button">Reset Semua Data</button>
+      </div>
+      <p class="privacy-note">Data tersimpan di browser perangkat Anda. Gunakan export jika ingin backup atau pindah perangkat.</p>
+      <div class="link-cards">
+        <a href="/privacy.html">Privasi</a>
+        <a href="/help.html">Bantuan</a>
+        <a href="https://github.com/pusakamediaid-dotcom/Architect-Prime" target="_blank" rel="noreferrer">Repository</a>
+      </div>
+    </section>
   </main>
 
-  <footer><p>Architect Prime Learning Hub — Pusaka Media ID</p></footer>
+  <nav class="bottom-nav" aria-label="Navigasi bawah">
+    <a href="#dashboard">Dashboard</a>
+    <a href="#tasks">Tugas</a>
+    <a href="#schedule">Jadwal</a>
+    <a href="#grades">Nilai</a>
+    <a href="#more">Lainnya</a>
+  </nav>
+
+  <footer>
+    <p>Pusaka Student Hub — Website bonus Pusaka Media ID. Dibangun dari repository Architect-Prime.</p>
+  </footer>
   <script src="./main.js"></script>
 </body>
 </html>
