@@ -179,6 +179,7 @@ The following validation artifacts were generated from local terminal runs durin
 | TypeScript build | ![Build validation](assets/validation/npm-build.png) |
 | Test + coverage | ![Test coverage validation](assets/validation/npm-test-coverage.png) |
 | npm audit | ![npm audit validation](assets/validation/npm-audit.png) |
+| GitHub Actions | ![GitHub Actions validation](assets/validation/github-actions.png) |
 
 ---
 

@@ -193,9 +193,17 @@ found 0 vulnerabilities
 
 ## 11. Hasil GitHub Actions
 
-Workflow sudah diperbarui dan di-push ke branch `main`. GitHub Actions akan berjalan setelah push commit tahap 2.
+Workflow sudah diperbarui, di-push ke branch `main`, dan berhasil dijalankan di GitHub.
 
-Local equivalent untuk job utama sudah berhasil:
+Latest GitHub Actions result untuk commit `3499c35`:
+
+```text
+Release Automation   v0.2.0-beta   completed   success
+CI Pipeline          main          completed   success
+Security Scan        main          completed   success
+```
+
+Local equivalent untuk job utama juga berhasil:
 
 ```text
 npm ci                         PASS
@@ -223,6 +231,7 @@ Isi:
 - `npm-build.png`
 - `npm-test-coverage.png`
 - `npm-audit.png`
+- `github-actions.png`
 
 Gambar-gambar ini sudah direferensikan di README pada bagian **Validation Screenshots**.
 
