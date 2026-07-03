@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portal belajar arsitektur perangkat lunak untuk mahasiswa dan pelajar.">
+  <title>Architect Prime Learning Hub</title>
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home"><span class="brand-mark">AP</span><span><strong>Architect Prime</strong><small>Learning Hub</small></span></a>
+    <button id="menuButton" class="menu-button" type="button">Menu</button>
+    <nav id="mainNav"><a href="#modules">Modul</a><a href="#roadmap">Jalur Belajar</a><a href="#practice">Latihan</a><a href="#about">Tentang</a></nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div>
+        <p class="eyebrow">Bonus pembelajaran digital Pusaka Media ID</p>
+        <h1>Pelajari arsitektur perangkat lunak melalui contoh proyek nyata.</h1>
+        <p class="lead">Portal gratis untuk memahami API, basis data, autentikasi, pengujian, dokumentasi, dan struktur proyek modern secara bertahap.</p>
+        <div class="actions"><a class="button primary" href="#modules">Mulai Belajar</a><a class="button secondary" href="https://github.com/pusakamediaid-dotcom/Architect-Prime" target="_blank" rel="noreferrer">Lihat Repository</a></div>
+        <div class="chips"><span>Gratis</span><span>Ramah HP</span><span>Tanpa akun</span></div>
+      </div>
+      <aside class="hero-card">
+        <p class="eyebrow">Alur utama</p><h2>Backend API Modern</h2>
+        <div class="flow"><span>Controller</span><b>→</b><span>Service</span><b>→</b><span>Repository</span><b>→</b><span>Database</span></div>
+      </aside>
+    </section>
+
+    <section class="section" id="modules">
+      <div class="section-head"><div><p class="eyebrow">Materi utama</p><h2>Pilih modul belajar</h2></div><input id="moduleSearch" type="search" placeholder="Cari modul..."></div>
+      <div id="moduleGrid" class="module-grid"></div>
+      <p id="emptyState" hidden>Tidak ada modul yang cocok.</p>
+    </section>
+
+    <section class="section muted" id="roadmap">
+      <p class="eyebrow">Jalur belajar</p><h2>Dari dasar hingga proyek siap dipresentasikan</h2>
+      <ol class="roadmap">
+        <li><span>01</span><div><h3>Kenali struktur proyek</h3><p>Pahami folder, tanggung jawab komponen, dan aliran data.</p></div></li>
+        <li><span>02</span><div><h3>Bangun API sederhana</h3><p>Pelajari route, controller, validasi input, dan respons.</p></div></li>
+        <li><span>03</span><div><h3>Hubungkan basis data</h3><p>Gunakan Prisma dan SQLite untuk migrasi serta operasi data.</p></div></li>
+        <li><span>04</span><div><h3>Tambahkan keamanan</h3><p>Pelajari autentikasi, middleware, dan otorisasi.</p></div></li>
+        <li><span>05</span><div><h3>Uji dan dokumentasikan</h3><p>Gunakan pengujian otomatis dan dokumentasi API.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="section" id="practice">
+      <p class="eyebrow">Latihan mandiri</p><h2>Uji pemahaman</h2>
+      <article class="quiz-card"><p id="quizCounter"></p><h3 id="quizQuestion"></h3><div id="quizOptions"></div><p id="quizFeedback" aria-live="polite"></p><button id="nextQuestion" class="button primary" type="button" disabled>Soal Berikutnya</button></article>
+    </section>
+
+    <section class="section muted" id="about"><p class="eyebrow">Tentang</p><h2>Dibangun dari Architect-Prime</h2><p>Website ini menjadikan repository teknis lebih mudah dipelajari. Modul selain baseline utama tetap diperlakukan sebagai bahan referensi dan pengembangan.</p></section>
+  </main>
+
+  <footer><p>Architect Prime Learning Hub — Pusaka Media ID</p></footer>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
